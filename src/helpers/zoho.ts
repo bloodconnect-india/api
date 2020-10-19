@@ -47,7 +47,6 @@ export const cityMiddleware = async (
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
-    console.log("Data is",data);
     
     // city is present
     if (data.code === 3002) {
@@ -62,10 +61,9 @@ export const cityMiddleware = async (
           Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
         },
       });
-      console.log(data1)
       res.locals.cityID = data1.data[0].ID
     } else {
-        res.locals.cityID = data.result[0].data.ID
+        res.locals.cityID = data.data.ID
     }
     next();
   } catch (e) {

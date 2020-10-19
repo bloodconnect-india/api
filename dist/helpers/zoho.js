@@ -46,7 +46,6 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
             },
         });
-        console.log("Data is", data);
         if (data.code === 3002) {
             let { data: data1 } = yield axios_1.default({
                 method: "GET",
@@ -58,11 +57,10 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                     Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
                 },
             });
-            console.log(data1);
             res.locals.cityID = data1.data[0].ID;
         }
         else {
-            res.locals.cityID = data.result[0].data.ID;
+            res.locals.cityID = data.data.ID;
         }
         next();
     }
