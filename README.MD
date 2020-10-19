@@ -4,7 +4,7 @@
 
 A node js api for bloodconnect to connect zoho  with the [website](https://bloodconnect.org) forms.
 
-It uses [redis](https://redis.io) to store the oauth token using express-session.  
+It uses [redis](https://redis.io) to store the oauth token using express-session. To install redis follow this [link](https://redis.io/topics/quickstart) 
 
 ## Installation
 
