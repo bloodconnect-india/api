@@ -47,6 +47,7 @@ export const cityMiddleware = async (
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    console.log("Data is",data);
     
     // city is present
     if (data.code === 3002) {

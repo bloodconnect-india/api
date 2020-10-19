@@ -46,6 +46,7 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
             },
         });
+        console.log("Data is", data);
         if (data.code === 3002) {
             let { data: data1 } = yield axios_1.default({
                 method: "GET",
