@@ -106,4 +106,37 @@ router.post("/donor", zohoMiddleware, async (req, res) => {
   }
 });
 
+
+//awareness feedback form
+
+router.post("/awareness", zohoMiddleware, async (req, res) => {
+  let reqData = {
+    data: {
+      Name: req.body.name,
+      Email: req.body.email,
+      Contact_Number: req.body.contact,
+      College_Company_Name: req.body.collegeName,
+      Experience: req.body.experience,
+      Interactive:req.body.interactive,
+      Speaker: req.body.speaker,
+      Learn_New:req.body.new,
+      Donate_Blood: req.body.donateBlood,
+      Additional:req.body.additional
+    }
+  };
+  try {
+    await Axios({
+      method: "POST",
+      url: process.env.BASE_URL! + "Awareness_Feedback_Form",
+      data: reqData,
+      headers: {
+        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+      },
+    });
+    res.status(200).send({ msg: "success" });
+  } catch (e) {
+    res.status(400).send({ msg: "failure" });
+  }
+});
+
 export default router
