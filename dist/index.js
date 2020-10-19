@@ -30,7 +30,7 @@ app.use(express_session_1.default({
 }));
 app.use("/", routes_1.default);
 app.use("/feedback", feedback_1.default);
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
     console.log("server started at port 3000");
 });
 exports.default = app;
