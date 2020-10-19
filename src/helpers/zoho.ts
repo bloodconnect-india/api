@@ -50,7 +50,7 @@ export const cityMiddleware = async (
     
     // city is present
     if (data.code === 3002) {
-      let { data } = await Axios({
+      let { data:data1 } = await Axios({
         method: "GET",
         url:
           process.env.BASE_GET_URL! +
@@ -61,8 +61,8 @@ export const cityMiddleware = async (
           Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
         },
       });
-      
-      res.locals.cityID = data.data[0].ID
+      console.log(data1)
+      res.locals.cityID = data1.data[0].ID
     } else {
         res.locals.cityID = data.result[0].data.ID
     }

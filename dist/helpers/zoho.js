@@ -47,7 +47,7 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             },
         });
         if (data.code === 3002) {
-            let { data } = yield axios_1.default({
+            let { data: data1 } = yield axios_1.default({
                 method: "GET",
                 url: process.env.BASE_GET_URL +
                     'Vlookup_Report?criteria=(City=="' +
@@ -57,7 +57,8 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                     Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
                 },
             });
-            res.locals.cityID = data.data[0].ID;
+            console.log(data1);
+            res.locals.cityID = data1.data[0].ID;
         }
         else {
             res.locals.cityID = data.result[0].data.ID;
