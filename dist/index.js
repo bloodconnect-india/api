@@ -31,7 +31,7 @@ app.use(express_session_1.default({
 app.use("/", routes_1.default);
 app.use("/feedback", feedback_1.default);
 app.listen(process.env.PORT, () => {
-    console.log("server started at port 3000");
+    console.log("server started at port ", process.env.PORT);
 });
 exports.default = app;
 //# sourceMappingURL=index.js.map

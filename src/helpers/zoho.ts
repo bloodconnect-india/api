@@ -36,7 +36,8 @@ export const cityMiddleware = async (
     },
   };
 
-  console.log(req.session!.zoho)
+
+  // trying to add the city in city_vlookup
   try {
     let { data } = await Axios({
       method: "POST",
@@ -68,6 +69,7 @@ export const cityMiddleware = async (
     next();
   } catch (e) {
     // send mail
+    console.log(e)
     res.status(501).send({ msg: "failure", desc: "Error in city middleware" });
   }
 };

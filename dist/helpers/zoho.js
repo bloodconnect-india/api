@@ -37,7 +37,6 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             City: req.body.City_Region
         },
     };
-    console.log(req.session.zoho);
     try {
         let { data } = yield axios_1.default({
             method: "POST",
@@ -66,6 +65,7 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         next();
     }
     catch (e) {
+        console.log(e);
         res.status(501).send({ msg: "failure", desc: "Error in city middleware" });
     }
 });
