@@ -17,7 +17,7 @@ export type CITYSTAT = {
     closed: number,
     total: number,
     donations?: number,
-    detail?:Record<string,MONTHSTAT[]>[];
+    detail?:Record<string,MONTHSTAT[]>;
 }
 
 

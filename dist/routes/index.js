@@ -150,7 +150,6 @@ router.post("/contact", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, v
     }
 }));
 router.get("/set-helpline-stat", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
     let data = req.query;
     const currYear = new Date().getFullYear();
     let finalData = {
@@ -158,7 +157,7 @@ router.get("/set-helpline-stat", (req, res) => __awaiter(void 0, void 0, void 0,
         open: parseInt(data.open),
         closed: parseInt(data.closed),
         total: parseInt(data.total),
-        detail: [],
+        detail: {},
     };
     if (!data || !data.city || !data.data) {
         res.status(400).send({ msg: "failure" });
@@ -177,7 +176,7 @@ router.get("/set-helpline-stat", (req, res) => __awaiter(void 0, void 0, void 0,
         }
         let tempData = {};
         tempData[i] = monthArray;
-        (_b = finalData.detail) === null || _b === void 0 ? void 0 : _b.push(tempData);
+        finalData.detail[i] = monthArray;
     }
     let allHelplineData = yield redis.get("helplines");
     if (!allHelplineData) {
@@ -190,15 +189,13 @@ router.get("/set-helpline-stat", (req, res) => __awaiter(void 0, void 0, void 0,
         tempData[data.city] = finalData;
         yield redis.set("helplines", JSON.stringify(tempData));
     }
-    const result = yield redis.get("helplines");
-    console.log(result ? JSON.parse(result) : "nO datat");
     res.status(200).send({ msg: "success" });
 }));
 router.get('/get-helplines', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
     let data = yield redis.get("helplines");
     if (!data)
         res.status(500).send({ msg: "some problem" });
-    res.status(200).send({ data });
+    res.status(200).send({ data: JSON.parse(data) });
 }));
 exports.default = router;
 //# sourceMappingURL=index.js.map

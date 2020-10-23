@@ -148,7 +148,9 @@ router.post("/contact", zohoMiddleware, async (req, res) => {
 });
 
 router.get("/set-helpline-stat", async (req, res) => {
+  // getting the request data 
   let data = req.query;
+
   const currYear = new Date().getFullYear();
 
   // the format of data that need to be pushed
@@ -157,7 +159,7 @@ router.get("/set-helpline-stat", async (req, res) => {
     open: parseInt(data.open as string),
     closed: parseInt(data.closed as string),
     total: parseInt(data.total as string),
-    detail: [],
+    detail: {},
   };
 
   // if the data sent is not complete
@@ -184,7 +186,7 @@ router.get("/set-helpline-stat", async (req, res) => {
     let tempData: Record<any, any> = {};
     tempData[i] = monthArray;
     // pushing current years data
-    finalData.detail?.push(tempData);
+    finalData.detail![i] = monthArray ;
   }
   
   let allHelplineData = await redis.get("helplines");
@@ -198,8 +200,6 @@ router.get("/set-helpline-stat", async (req, res) => {
     await redis.set("helplines", JSON.stringify(tempData));
   }
 
-  const result  = await redis.get("helplines")
-  console.log(result ? JSON.parse(result) : "nO datat") 
   res.status(200).send({ msg : "success"});
 });
 
@@ -208,7 +208,8 @@ router.get('/get-helplines' , async (_,res) => {
   let data = await redis.get("helplines")
   if(!data) 
     res.status(500).send({msg:"some problem"})
-  res.status(200).send({ data })
+  res.status(200).send({ data : JSON.parse(data!) })
+
 })
 
 export default router;
