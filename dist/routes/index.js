@@ -13,10 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const ioredis_1 = __importDefault(require("ioredis"));
 const zoho_1 = require("../helpers/zoho");
 const axios_1 = __importDefault(require("axios"));
 const helpers_1 = require("../helpers");
 const router = express_1.default.Router();
+const redis = new ioredis_1.default(process.env.REDIS_URL);
 router.get("/", (_, res) => {
     res.status(200).send({ msg: "success" });
 });
@@ -146,6 +148,57 @@ router.post("/contact", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, v
         console.log("error", e);
         res.send(500).send({ msg: "failure" });
     }
+}));
+router.get("/set-helpline-stat", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    let data = req.query;
+    const currYear = new Date().getFullYear();
+    let finalData = {
+        city: data.city,
+        open: parseInt(data.open),
+        closed: parseInt(data.closed),
+        total: parseInt(data.total),
+        detail: [],
+    };
+    if (!data || !data.city || !data.data) {
+        res.status(400).send({ msg: "failure" });
+    }
+    const helplineData = JSON.parse(data.data);
+    for (var i = 2020; i <= currYear; i++) {
+        let yearTemp = helplineData[i];
+        let monthArray = Array(12).fill({
+            donations: 0,
+            helpline: 0,
+        });
+        for (var j = 1; j <= 12; j++) {
+            if (yearTemp[j]) {
+                monthArray[j - 1] = yearTemp[j];
+            }
+        }
+        let tempData = {};
+        tempData[i] = monthArray;
+        (_b = finalData.detail) === null || _b === void 0 ? void 0 : _b.push(tempData);
+    }
+    let allHelplineData = yield redis.get("helplines");
+    if (!allHelplineData) {
+        let tempData = {};
+        tempData[data.city] = finalData;
+        yield redis.set("helplines", JSON.stringify(tempData));
+    }
+    else {
+        let tempData = JSON.parse(allHelplineData);
+        tempData[data.city] = finalData;
+        yield redis.set("helplines", JSON.stringify(tempData));
+    }
+    const result = yield redis.get("helplines");
+    console.log(result ? JSON.parse(result) : "nO datat");
+    res.status(200).send({ msg: "success" });
+}));
+router.get('/get-helplines', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let data = yield redis.get("helplines");
+    if (!data)
+        res.status(500).send({ msg: "some problem" });
+    res.status(200).send({ data });
 }));
 exports.default = router;
 //# sourceMappingURL=index.js.map

@@ -1,13 +1,15 @@
 import express from "express";
+import Redis from "ioredis";
 import { cityMiddleware, zohoMiddleware } from "../helpers/zoho";
 import Axios from "axios";
 import { changeToddmmyyyy, convertArrayToList } from "../helpers";
+import { CITYSTAT, MONTHSTAT } from "src/types";
 
 const router = express.Router();
+const redis = new Redis(process.env.REDIS_URL);
 
 router.get("/", (_, res) => {
-  
-  res.status(200).send({msg:"success"});
+  res.status(200).send({ msg: "success" });
 });
 
 // helpline request
@@ -145,8 +147,68 @@ router.post("/contact", zohoMiddleware, async (req, res) => {
   }
 });
 
+router.get("/set-helpline-stat", async (req, res) => {
+  let data = req.query;
+  const currYear = new Date().getFullYear();
+
+  // the format of data that need to be pushed
+  let finalData: CITYSTAT = {
+    city: data.city as string,
+    open: parseInt(data.open as string),
+    closed: parseInt(data.closed as string),
+    total: parseInt(data.total as string),
+    detail: [],
+  };
+
+  // if the data sent is not complete
+  if (!data || !data.city || !data.data) {
+    res.status(400).send({ msg: "failure" });
+  }
+
+  // getting the detail data for eash month
+  const helplineData = JSON.parse(data.data as string);
+  // setting data in right format
+  for (var i = 2020; i <= currYear; i++) {
+    // getting a single years data
+    let yearTemp = helplineData[i];
+    let monthArray: MONTHSTAT[] = Array<MONTHSTAT>(12).fill({
+      donations: 0,
+      helpline: 0,
+    });
+    // adding to respective indexes
+    for (var j = 1; j <= 12; j++) {
+      if (yearTemp[j]) {
+        monthArray[j - 1] = yearTemp[j];
+      }
+    }
+    let tempData: Record<any, any> = {};
+    tempData[i] = monthArray;
+    // pushing current years data
+    finalData.detail?.push(tempData);
+  }
+  
+  let allHelplineData = await redis.get("helplines");
+  if (!allHelplineData) {
+    let tempData: Record<string, any> = {};
+    tempData[data.city as string] = finalData;
+    await redis.set("helplines", JSON.stringify(tempData));
+  } else {
+    let tempData = JSON.parse(allHelplineData);
+    tempData[data.city as string] = finalData;
+    await redis.set("helplines", JSON.stringify(tempData));
+  }
+
+  const result  = await redis.get("helplines")
+  console.log(result ? JSON.parse(result) : "nO datat") 
+  res.status(200).send({ msg : "success"});
+});
 
 
-
+router.get('/get-helplines' , async (_,res) => {
+  let data = await redis.get("helplines")
+  if(!data) 
+    res.status(500).send({msg:"some problem"})
+  res.status(200).send({ data })
+})
 
 export default router;

@@ -5,3 +5,20 @@ export type REFRESH_RESPONSE  = {
     "api_domain":string,
     "token_type": string
 }
+
+export type MONTHSTAT = {
+    helpline: number,
+    donations: number
+}
+
+export type CITYSTAT = {
+    city:string,
+    open: number,
+    closed: number,
+    total: number,
+    donations?: number,
+    detail?:Record<string,MONTHSTAT[]>[];
+}
+
+
+
