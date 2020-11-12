@@ -10,8 +10,9 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
 const ioredis_1 = __importDefault(require("ioredis"));
 const express_session_1 = __importDefault(require("express-session"));
-const routes_1 = __importDefault(require("./routes"));
+const index_1 = __importDefault(require("./routes/index"));
 const feedback_1 = __importDefault(require("./routes/feedback"));
+const payment_1 = __importDefault(require("./routes/payment"));
 const app = express_1.default();
 const RedisStore = connect_redis_1.default(express_session_1.default);
 const redis = new ioredis_1.default(process.env.REDIS_URL);
@@ -28,8 +29,9 @@ app.use(express_session_1.default({
     resave: false,
     saveUninitialized: true,
 }));
-app.use("/", routes_1.default);
+app.use("/", index_1.default);
 app.use("/feedback", feedback_1.default);
+app.use("/payment", payment_1.default);
 app.listen(process.env.PORT, () => {
     console.log("server started at port ", process.env.PORT);
 });

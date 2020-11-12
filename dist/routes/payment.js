@@ -17,7 +17,7 @@ const razorpay_1 = __importDefault(require("razorpay"));
 const crypto_1 = __importDefault(require("crypto"));
 const axios_1 = __importDefault(require("axios"));
 const zoho_1 = require("../helpers/zoho");
-const helpers_1 = require("src/helpers");
+const index_1 = require("../helpers/index");
 const router = express_1.default.Router();
 var instance = new razorpay_1.default({
     key_id: process.env.RAZORPAY_KEY,
@@ -43,7 +43,12 @@ router.post("/verify", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, vo
         .update(data.toString())
         .digest("hex");
     if (expectedSignature === req.body.razorpay_signature) {
-        let dob = req.body.dob ? helpers_1.changeToddmmyyyy(req.body.dob) : "01-01-1975";
+        let dob = req.body.dob ? index_1.changeToddmmyyyy(req.body.dob) : "01-01-1975";
+        let d = new Date();
+        const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+        const mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
+        const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+        let today = `${da}-${mo}-${ye}`;
         let reqData = {
             Name: req.body.name,
             Email: req.body.email,
@@ -52,10 +57,12 @@ router.post("/verify", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, vo
             Pan_Card_Number: req.body.panCard,
             Date_of_Birth: dob,
             Payment_Id: req.body.razorpay_payment_id,
-            Date_field: new Date().toLocaleDateString()
+            Month_field: mo,
+            Date_field: today
         };
         try {
-            yield axios_1.default({
+            console.log("Trying to add daa");
+            let d = yield axios_1.default({
                 method: "POST",
                 url: process.env.BASE_URL + "Donation",
                 data: { data: reqData },
@@ -63,8 +70,12 @@ router.post("/verify", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, vo
                     Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
                 },
             });
+            if (d.data.code !== 3000)
+                console.log(d);
         }
-        catch (e) { }
+        catch (e) {
+            console.log(e);
+        }
         res.status(200).send({ msg: "success" });
     }
 }));

@@ -22,6 +22,8 @@ export const zohoMiddleware = async (
   }
 };
 
+
+
 export const cityMiddleware = async (
   req: Request,
   res: Response,
@@ -48,6 +50,8 @@ export const cityMiddleware = async (
       },
     });
     
+    
+    
     // city is present
     if (data.code === 3002) {
       let { data:data1 } = await Axios({
@@ -69,6 +73,7 @@ export const cityMiddleware = async (
   } catch (e) {
     // send mail
     console.log(e)
+    
     res.status(501).send({ msg: "failure", desc: "Error in city middleware" });
   }
 };

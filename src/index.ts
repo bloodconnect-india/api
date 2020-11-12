@@ -6,8 +6,9 @@ import connectRedis from "connect-redis";
 import Redis from "ioredis";
 import session from "express-session";
 
-import root from "./routes";
+import root from "./routes/index";
 import feedback from "./routes/feedback";
+import payment from "./routes/payment"
 
 const app = express();
 const RedisStore = connectRedis(session);
@@ -30,6 +31,7 @@ app.use(
 );
 app.use("/", root);
 app.use("/feedback",feedback);
+app.use("/payment",payment);
 app.listen(process.env.PORT, () => {
   console.log("server started at port ",process.env.PORT);
 });

@@ -19,7 +19,7 @@ router.post("/helpline", zohoMiddleware, cityMiddleware, async (req, res) => {
 
   // sending request to helpline form
   try {
-    req.body.City_Region = req.res?.locals.cityID;
+    req.body.City_Region = req.res?.locals.cityID; //string  -> ID
     await Axios({
       method: "POST",
       url: process.env.BASE_URL! + "Helpline",
