@@ -51,7 +51,6 @@ router.post("/verify", zohoMiddleware, async (req, res) => {
       Date_field: today,
       Source: req.body.source
     };
-    console.log(reqData);
     try {
       console.log("Trying to add data");
       let d = await Axios({
