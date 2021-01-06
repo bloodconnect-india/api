@@ -58,10 +58,11 @@ router.post("/verify", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, vo
             Date_of_Birth: dob,
             Payment_Id: req.body.razorpay_payment_id,
             Month_field: mo,
-            Date_field: today
+            Date_field: today,
+            Source: req.body.source
         };
         try {
-            console.log("Trying to add daa");
+            console.log("Trying to add data");
             let d = yield axios_1.default({
                 method: "POST",
                 url: process.env.BASE_URL + "Donation",

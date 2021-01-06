@@ -52,7 +52,7 @@ router.post("/verify", zohoMiddleware, async (req, res) => {
       Source: req.body.source
     };
     try {
-      console.log("Trying to add daa");
+      console.log("Trying to add data");
       let d = await Axios({
         method: "POST",
         url: process.env.BASE_URL! + "Donation",
