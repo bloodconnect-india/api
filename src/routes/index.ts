@@ -110,6 +110,7 @@ router.post("/camp-request", zohoMiddleware, async (req, res) => {
       Additional_Message: req.body.Additional_Message,
       Number_of_Employee: req.body.Number_of_Employee,
       Organization_Name: req.body.Organization_Name,
+      Status: "Open"
     },
   };
   try {
@@ -148,7 +149,7 @@ router.post("/contact", zohoMiddleware, async (req, res) => {
 });
 
 router.get("/set-helpline-stat", async (req, res) => {
-  // getting the request data 
+  // getting the request data
   let data = req.query;
 
   const currYear = new Date().getFullYear();
@@ -188,7 +189,7 @@ router.get("/set-helpline-stat", async (req, res) => {
     // pushing current years data
     finalData.detail![i] = monthArray ;
   }
-  
+
   let allHelplineData = await redis.get("helplines");
   if (!allHelplineData) {
     let tempData: Record<string, any> = {};
@@ -206,7 +207,7 @@ router.get("/set-helpline-stat", async (req, res) => {
 
 router.get('/get-helplines' , async (_,res) => {
   let data = await redis.get("helplines")
-  if(!data) 
+  if(!data)
     res.status(500).send({msg:"some problem"})
   res.status(200).send({ data : JSON.parse(data!) })
 
