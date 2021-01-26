@@ -16,7 +16,7 @@ export const zohoMiddleware = async (
   if (req.session?.zoho) next();
   else {
     let { data } = await getToken();
-    
+
     req.session!.zoho = data.access_token;
     next();
   }
@@ -34,7 +34,7 @@ export const cityMiddleware = async (
   req.body.City_Region = req.body.City_Region ? req.body.City_Region : req.body.City_Donor;
   let reqData = {
     data: {
-      City: req.body.City_Region 
+      City: req.body.City_Region
     },
   };
 
@@ -49,9 +49,9 @@ export const cityMiddleware = async (
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
-    
-    
-    
+
+
+
     // city is present
     if (data.code === 3002) {
       let { data:data1 } = await Axios({
@@ -73,7 +73,7 @@ export const cityMiddleware = async (
   } catch (e) {
     // send mail
     console.log(e)
-    
+
     res.status(501).send({ msg: "failure", desc: "Error in city middleware" });
   }
 };

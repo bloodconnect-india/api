@@ -43,6 +43,8 @@ router.post("/helpline", zoho_1.zohoMiddleware, zoho_1.cityMiddleware, (req, res
     }
 }));
 router.post("/add-donor", zoho_1.zohoMiddleware, zoho_1.cityMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    req.body.City_Donor = (_b = req.res) === null || _b === void 0 ? void 0 : _b.locals.cityID;
     let reqData = {
         data: {
             Name: req.body.Name,
@@ -112,6 +114,7 @@ router.post("/camp-request", zoho_1.zohoMiddleware, (req, res) => __awaiter(void
             Additional_Message: req.body.Additional_Message,
             Number_of_Employee: req.body.Number_of_Employee,
             Organization_Name: req.body.Organization_Name,
+            Status: "Open"
         },
     };
     try {

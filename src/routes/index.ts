@@ -38,6 +38,7 @@ router.post("/helpline", zohoMiddleware, cityMiddleware, async (req, res) => {
 
 // register as donor request
 router.post("/add-donor", zohoMiddleware, cityMiddleware, async (req, res) => {
+  req.body.City_Donor = req.res?.locals.cityID; //string  -> ID
   let reqData = {
     data: {
       Name: req.body.Name,
