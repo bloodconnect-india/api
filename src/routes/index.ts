@@ -133,15 +133,14 @@ router.post("/camp-request", zohoMiddleware, async (req, res) => {
 router.post("/contact", zohoMiddleware, async (req, res) => {
   if (!req.session!.zoho) res.status(500).send({ msg: "failure" });
   try {
-    let { data } = await Axios({
+    await Axios({
       method: "POST",
       url: process.env.BASE_URL! + "Contact_Us_Website",
-      data: { data: { data: req.body } },
+      data: { data:req.body  },
       headers: {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
-    console.log(data);
     res.status(200).send({ msg: "success" });
   } catch (e) {
     console.log("error", e);

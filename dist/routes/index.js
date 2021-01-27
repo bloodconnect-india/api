@@ -136,15 +136,14 @@ router.post("/contact", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, v
     if (!req.session.zoho)
         res.status(500).send({ msg: "failure" });
     try {
-        let { data } = yield axios_1.default({
+        yield axios_1.default({
             method: "POST",
             url: process.env.BASE_URL + "Contact_Us_Website",
-            data: { data: { data: req.body } },
+            data: { data: req.body },
             headers: {
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
             },
         });
-        console.log(data);
         res.status(200).send({ msg: "success" });
     }
     catch (e) {
