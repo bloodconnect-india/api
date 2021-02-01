@@ -45,7 +45,7 @@ router.post("/helpline", zoho_1.zohoMiddleware, zoho_1.cityMiddleware, (req, res
 router.post("/add-donor", zoho_1.zohoMiddleware, zoho_1.cityMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     req.body.City_Donor = (_b = req.res) === null || _b === void 0 ? void 0 : _b.locals.cityID;
-    let reqData = {
+    const reqData = {
         data: {
             Name: req.body.Name,
             City_Donor: req.body.City_Donor,
@@ -72,7 +72,7 @@ router.post("/add-donor", zoho_1.zohoMiddleware, zoho_1.cityMiddleware, (req, re
     }
 }));
 router.post("/recruitment", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let reqData = {
+    const reqData = {
         data: {
             Name: req.body.Name,
             City: req.body.City,
@@ -92,7 +92,7 @@ router.post("/recruitment", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 
     try {
         yield axios_1.default({
             method: "POST",
-            url: process.env.BASE_URL + "Recruitment",
+            url: process.env.BASE_URL + "Recruitment_Form",
             data: reqData,
             headers: {
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
@@ -101,11 +101,12 @@ router.post("/recruitment", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 
         res.status(200).send({ msg: "success" });
     }
     catch (e) {
+        console.log(e);
         res.status(400).send({ msg: "failure" });
     }
 }));
 router.post("/camp-request", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let reqData = {
+    const reqData = {
         data: {
             Your_Name: req.body.Your_Name,
             City_Name: req.body.City_Region,
@@ -152,49 +153,49 @@ router.post("/contact", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, v
     }
 }));
 router.get("/set-helpline-stat", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let data = req.query;
+    const data = req.query;
     const currYear = new Date().getFullYear();
-    let finalData = {
+    const finalData = {
         city: data.city,
-        open: parseInt(data.open),
-        closed: parseInt(data.closed),
-        total: parseInt(data.total),
+        open: parseInt(data.open, 10),
+        closed: parseInt(data.closed, 10),
+        total: parseInt(data.total, 10),
         detail: {},
     };
     if (!data || !data.city || !data.data) {
         res.status(400).send({ msg: "failure" });
     }
     const helplineData = JSON.parse(data.data);
-    for (var i = 2020; i <= currYear; i++) {
-        let yearTemp = helplineData[i];
-        let monthArray = Array(12).fill({
+    for (let i = 2020; i <= currYear; i++) {
+        const yearTemp = helplineData[i];
+        const monthArray = Array(12).fill({
             donations: 0,
             helpline: 0,
         });
-        for (var j = 1; j <= 12; j++) {
+        for (let j = 1; j <= 12; j++) {
             if (yearTemp[j]) {
                 monthArray[j - 1] = yearTemp[j];
             }
         }
-        let tempData = {};
+        const tempData = {};
         tempData[i] = monthArray;
         finalData.detail[i] = monthArray;
     }
-    let allHelplineData = yield redis.get("helplines");
+    const allHelplineData = yield redis.get("helplines");
     if (!allHelplineData) {
-        let tempData = {};
+        const tempData = {};
         tempData[data.city] = finalData;
         yield redis.set("helplines", JSON.stringify(tempData));
     }
     else {
-        let tempData = JSON.parse(allHelplineData);
+        const tempData = JSON.parse(allHelplineData);
         tempData[data.city] = finalData;
         yield redis.set("helplines", JSON.stringify(tempData));
     }
     res.status(200).send({ msg: "success" });
 }));
 router.get('/get-helplines', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let data = yield redis.get("helplines");
+    const data = yield redis.get("helplines");
     if (!data)
         res.status(500).send({ msg: "some problem" });
     res.status(200).send({ data: JSON.parse(data) });

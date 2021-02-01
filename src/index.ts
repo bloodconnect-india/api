@@ -21,7 +21,7 @@ app.use(
     name: process.env.SESSION_NAME!,
     store: new RedisStore({
       client: redis,
-      ttl: 3600, //in seconds
+      ttl: 3600, // in seconds
       disableTouch: true,
     }),
     secret: process.env.SESSION_SECRET!,
@@ -33,6 +33,6 @@ app.use("/", root);
 app.use("/feedback",feedback);
 app.use("/payment",payment);
 app.listen(process.env.PORT, () => {
-  console.log("server started at port ",process.env.PORT);
+  console.log("server started at port : ",process.env.PORT);
 });
 export default app;
