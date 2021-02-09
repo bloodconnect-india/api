@@ -3,7 +3,7 @@
     "start": "node dist/index.js",
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
-    "test":"NODE_ENV=test mocha dist/test/"
+    "test": "NODE_ENV=test mocha dist/test/"
   },
   "dependencies": {
     "axios": "^0.20.0",

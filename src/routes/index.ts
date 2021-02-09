@@ -68,7 +68,7 @@ router.post("/add-donor", zohoMiddleware, cityMiddleware, async (req, res) => {
 // recruitment form
 router.post("/recruitment", zohoMiddleware, async (req, res) => {
   // here city is not a vlookup !!!
- 
+  // console.log(req.body.Why_BC);
   const reqData = {
     data: {
       Name: req.body.Name,
@@ -79,15 +79,15 @@ router.post("/recruitment", zohoMiddleware, async (req, res) => {
       Prior_Experience_Volunteering: req.body.Prior_Experience_Volunteering,
       Year_of_Graduation: req.body.Year_of_Graduation,
       Organization: req.body.Organization,
-      Why_BC1: convertArrayToList(req.body.Why_BC),
-      Interested_In: convertArrayToList(req.body.Interested_In),
+      Why_BC1: req.body.Why_BC,
+      Interested_In: req.body.Interested_In,
       Personal_Contact: req.body.Personal_Contact,
       How_BC: req.body.How_BC,
       Status: "On Going",
     },
   };
   try {
-    await Axios({
+    const { data } = await Axios({
       method: "POST",
       url: process.env.BASE_URL! + "Recruitment_Form",
       data: reqData,
@@ -95,6 +95,8 @@ router.post("/recruitment", zohoMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    if (data.code && data.code !== 3000)
+      res.status(500).send({ msg: "failure", err: "Error with zoho request" });
     res.status(200).send({ msg: "success" });
   } catch (e) {
     console.log(e);
@@ -113,7 +115,7 @@ router.post("/camp-request", zohoMiddleware, async (req, res) => {
       Additional_Message: req.body.Additional_Message,
       Number_of_Employee: req.body.Number_of_Employee,
       Organization_Name: req.body.Organization_Name,
-      Status: "Open"
+      Status: "Open",
     },
   };
   try {
@@ -138,7 +140,7 @@ router.post("/contact", zohoMiddleware, async (req, res) => {
     await Axios({
       method: "POST",
       url: process.env.BASE_URL! + "Contact_Us_Website",
-      data: { data:req.body  },
+      data: { data: req.body },
       headers: {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
@@ -159,10 +161,10 @@ router.get("/set-helpline-stat", async (req, res) => {
   // the format of data that need to be pushed
   const finalData: CITYSTAT = {
     city: data.city as string,
-    
-    open: parseInt(data.open as string,10),
-    closed: parseInt(data.closed as string,10),
-    total: parseInt(data.total as string,10),
+
+    open: parseInt(data.open as string, 10),
+    closed: parseInt(data.closed as string, 10),
+    total: parseInt(data.total as string, 10),
     detail: {},
   };
 
@@ -190,7 +192,7 @@ router.get("/set-helpline-stat", async (req, res) => {
     const tempData: Record<any, any> = {};
     tempData[i] = monthArray;
     // pushing current years data
-    finalData.detail![i] = monthArray ;
+    finalData.detail![i] = monthArray;
   }
 
   const allHelplineData = await redis.get("helplines");
@@ -204,16 +206,13 @@ router.get("/set-helpline-stat", async (req, res) => {
     await redis.set("helplines", JSON.stringify(tempData));
   }
 
-  res.status(200).send({ msg : "success"});
+  res.status(200).send({ msg: "success" });
 });
 
-
-router.get('/get-helplines' , async (_,res) => {
-  const data = await redis.get("helplines")
-  if(!data)
-    res.status(500).send({msg:"some problem"})
-  res.status(200).send({ data : JSON.parse(data!) })
-
-})
+router.get("/get-helplines", async (_, res) => {
+  const data = await redis.get("helplines");
+  if (!data) res.status(500).send({ msg: "some problem" });
+  res.status(200).send({ data: JSON.parse(data!) });
+});
 
 export default router;

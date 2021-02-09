@@ -1,0 +1,25 @@
+.main {
+    width: 524px;
+    height: 372px;
+    border-width: 1px;
+    border-color: pink;
+    border-style: solid;
+    background-image: url("https://bloodconnect-india.github.io/Templates/BirthdayCard/content/BirthdayCard.png");
+}
+img {
+    width: 205px;
+    height: 205px;
+    margin: 69.5px 20.5px;
+    border-radius: 50%;
+    
+}
+#text-display{
+    vertical-align: top;
+    display: inline-block;
+    text-align: center;
+    font-family: 'Sacramento';
+    font-size: 36px;
+    padding-left: 15px;
+    margin-top: 150px;
+    color: grey;
+}
