@@ -133,6 +133,27 @@ router.post("/camp-request", zohoMiddleware, async (req, res) => {
   }
 });
 
+
+// awareness request
+router.post("/awareness-request", zohoMiddleware, async (req, res) => {
+  const reqData = {
+    data: req.body,
+  };
+  try {
+    await Axios({
+      method: "POST",
+      url: process.env.BASE_URL! + "Awareness_Request_Website",
+      data: reqData,
+      headers: {
+        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+      },
+    });
+    res.status(200).send({ msg: "success" });
+  } catch (e) {
+    res.status(400).send({ msg: "failure" });
+  }
+});
+
 // contact form
 router.post("/contact", zohoMiddleware, async (req, res) => {
   if (!req.session!.zoho) res.status(500).send({ msg: "failure" });
