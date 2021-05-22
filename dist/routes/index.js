@@ -82,15 +82,15 @@ router.post("/recruitment", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 
             Prior_Experience_Volunteering: req.body.Prior_Experience_Volunteering,
             Year_of_Graduation: req.body.Year_of_Graduation,
             Organization: req.body.Organization,
-            Why_BC1: helpers_1.convertArrayToList(req.body.Why_BC),
-            Interested_In: helpers_1.convertArrayToList(req.body.Interested_In),
+            Why_BC1: req.body.Why_BC,
+            Interested_In: req.body.Interested_In,
             Personal_Contact: req.body.Personal_Contact,
             How_BC: req.body.How_BC,
             Status: "On Going",
         },
     };
     try {
-        yield axios_1.default({
+        const { data } = yield axios_1.default({
             method: "POST",
             url: process.env.BASE_URL + "Recruitment_Form",
             data: reqData,
@@ -98,6 +98,8 @@ router.post("/recruitment", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
             },
         });
+        if (data.code && data.code !== 3000)
+            res.status(500).send({ msg: "failure", err: "Error with zoho request" });
         res.status(200).send({ msg: "success" });
     }
     catch (e) {
@@ -115,7 +117,7 @@ router.post("/camp-request", zoho_1.zohoMiddleware, (req, res) => __awaiter(void
             Additional_Message: req.body.Additional_Message,
             Number_of_Employee: req.body.Number_of_Employee,
             Organization_Name: req.body.Organization_Name,
-            Status: "Open"
+            Status: "Open",
         },
     };
     try {
@@ -194,7 +196,7 @@ router.get("/set-helpline-stat", (req, res) => __awaiter(void 0, void 0, void 0,
     }
     res.status(200).send({ msg: "success" });
 }));
-router.get('/get-helplines', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/get-helplines", (_, res) => __awaiter(void 0, void 0, void 0, function* () {
     const data = yield redis.get("helplines");
     if (!data)
         res.status(500).send({ msg: "some problem" });
