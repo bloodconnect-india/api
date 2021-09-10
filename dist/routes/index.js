@@ -12,11 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const axios_1 = __importDefault(require("axios"));
 const express_1 = __importDefault(require("express"));
 const ioredis_1 = __importDefault(require("ioredis"));
-const zoho_1 = require("../helpers/zoho");
-const axios_1 = __importDefault(require("axios"));
 const helpers_1 = require("../helpers");
+const zoho_1 = require("../helpers/zoho");
 const router = express_1.default.Router();
 const redis = new ioredis_1.default(process.env.REDIS_URL);
 router.get("/", (_, res) => {
@@ -124,6 +124,25 @@ router.post("/camp-request", zoho_1.zohoMiddleware, (req, res) => __awaiter(void
         yield axios_1.default({
             method: "POST",
             url: process.env.BASE_URL + "Camp_Request_Website",
+            data: reqData,
+            headers: {
+                Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
+            },
+        });
+        res.status(200).send({ msg: "success" });
+    }
+    catch (e) {
+        res.status(400).send({ msg: "failure" });
+    }
+}));
+router.post("/awareness-request", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const reqData = {
+        data: req.body,
+    };
+    try {
+        yield axios_1.default({
+            method: "POST",
+            url: process.env.BASE_URL + "Awareness_Request_Website",
             data: reqData,
             headers: {
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,

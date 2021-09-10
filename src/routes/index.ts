@@ -1,9 +1,9 @@
+import Axios from "axios";
 import express from "express";
 import Redis from "ioredis";
-import { cityMiddleware, zohoMiddleware } from "../helpers/zoho";
-import Axios from "axios";
-import { changeToddmmyyyy, convertArrayToList } from "../helpers";
 import { CITYSTAT, MONTHSTAT } from "../../src/types";
+import { changeToddmmyyyy } from "../helpers";
+import { cityMiddleware, zohoMiddleware } from "../helpers/zoho";
 
 const router = express.Router();
 const redis = new Redis(process.env.REDIS_URL);
@@ -132,7 +132,6 @@ router.post("/camp-request", zohoMiddleware, async (req, res) => {
     res.status(400).send({ msg: "failure" });
   }
 });
-
 
 // awareness request
 router.post("/awareness-request", zohoMiddleware, async (req, res) => {
