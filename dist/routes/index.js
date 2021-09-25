@@ -173,6 +173,25 @@ router.post("/contact", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, v
         res.send(500).send({ msg: "failure" });
     }
 }));
+router.post("/blood-warrior", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.session.zoho)
+        res.status(500).send({ msg: "failure" });
+    try {
+        yield axios_1.default({
+            method: "POST",
+            url: process.env.BASE_URL + "Blood_Warriors",
+            data: { data: req.body },
+            headers: {
+                Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
+            },
+        });
+        res.status(200).send({ msg: "success" });
+    }
+    catch (e) {
+        console.log("error", e);
+        res.send(500).send({ msg: "failure" });
+    }
+}));
 router.get("/set-helpline-stat", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const data = req.query;
     const currYear = new Date().getFullYear();

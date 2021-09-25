@@ -172,6 +172,25 @@ router.post("/contact", zohoMiddleware, async (req, res) => {
   }
 });
 
+// blood warrior
+router.post("/blood-warrior", zohoMiddleware, async (req, res) => {
+  if (!req.session!.zoho) res.status(500).send({ msg: "failure" });
+  try {
+    await Axios({
+      method: "POST",
+      url: process.env.BASE_URL! + "Blood_Warriors",
+      data: { data: req.body },
+      headers: {
+        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+      },
+    });
+    res.status(200).send({ msg: "success" });
+  } catch (e) {
+    console.log("error", e);
+    res.send(500).send({ msg: "failure" });
+  }
+});
+
 router.get("/set-helpline-stat", async (req, res) => {
   // getting the request data
   const data = req.query;
