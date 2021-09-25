@@ -19,6 +19,7 @@ exports.getToken = () => {
 };
 exports.zohoMiddleware = (req, _, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    console.log("heree");
     if ((_a = req.session) === null || _a === void 0 ? void 0 : _a.zoho)
         next();
     else {
@@ -31,10 +32,12 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     var _b;
     if (!((_b = req.session) === null || _b === void 0 ? void 0 : _b.zoho))
         res.status(404).send({ msg: "failure" });
-    req.body.City_Region = req.body.City_Region ? req.body.City_Region : req.body.City_Donor;
+    req.body.City_Region = req.body.City_Region
+        ? req.body.City_Region
+        : req.body.City_Donor;
     let reqData = {
         data: {
-            City: req.body.City_Region
+            City: req.body.City_Region,
         },
     };
     try {
@@ -52,7 +55,7 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                 url: process.env.BASE_GET_URL +
                     'Vlookup_Report?criteria=(City=="' +
                     req.body.City_Region +
-                    "\")",
+                    '")',
                 headers: {
                     Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
                 },

@@ -175,8 +175,9 @@ router.post("/contact", zohoMiddleware, async (req, res) => {
 // blood warrior
 router.post("/blood-warrior", zohoMiddleware, async (req, res) => {
   if (!req.session!.zoho) res.status(500).send({ msg: "failure" });
+  console.log(req.body);
   try {
-    await Axios({
+    const { data } = await Axios({
       method: "POST",
       url: process.env.BASE_URL! + "Blood_Warriors",
       data: { data: req.body },
@@ -184,6 +185,7 @@ router.post("/blood-warrior", zohoMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    console.log(data);
     res.status(200).send({ msg: "success" });
   } catch (e) {
     console.log("error", e);
