@@ -256,4 +256,65 @@ router.get("/get-helplines", async (_, res) => {
   res.status(200).send({ data: JSON.parse(data!) });
 });
 
+router.get("/fetch-eraktkosh", async (_, res) => {
+  const city_list = {
+    "35": "andaman_and_nicobar_islands",
+  };
+  Object.keys(city_list).forEach(async (city_code) => {
+    const short_url =
+      "https://www.eraktkosh.in/BLDAHIMS/bloodbank/nearbyBB.cnt?hmode=GETNEARBYSTOCKDETAILS&stateCode=" +
+      city_code +
+      "&districtCode=-1&bloodGroup=all&bloodComponent=11&lang=0&_=1633202320971";
+    const { data } = await Axios.get(short_url);
+    const entries = data.data;
+    entries.forEach((entry: any) => {
+      const s_number = entry[0];
+      const details = entry[1].split("<br/>");
+      const name = details[0];
+      const address = details[1];
+      var phone = "-",
+        fax = "-",
+        email = "-";
+      if (details[2] != null) {
+        var s1 = details[2].replace("Phone: ", "?");
+        var s2 = s1.replace(",Fax: ", "?");
+        var s3 = s2.replace("Email: ", "?");
+
+        phone = s3.split("?")[1];
+        fax = s3.split("?")[2].replace(",", " ");
+        email = s3.split("?")[3];
+      }
+
+      var category = entry[2];
+      var availability: string = entry[3];
+      if (availability.includes("Not")) {
+        availability = "NA";
+      } else {
+        availability = availability.replace(
+          "<p class='text-success'>Available, ",
+          " "
+        );
+        availability = availability.replace("</p>", " ");
+      }
+      var time_updated = entry[4];
+      if (time_updated.includes("live")) {
+        time_updated = "LIVE";
+      }
+      var type = entry[5];
+      res.json({
+        s_number,
+        name,
+        address,
+        phone,
+        email,
+        fax,
+        category,
+        availability,
+        time_updated,
+        type,
+      });
+    });
+  });
+});
+
 export default router;

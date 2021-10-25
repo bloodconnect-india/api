@@ -2,7 +2,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "watch": "tsc -w",
-    "dev": "nodemon dist/index.js",
+    "dev": "npm run watch & nodemon dist/index.js",
     "test": "NODE_ENV=test mocha dist/test/"
   },
   "dependencies": {
