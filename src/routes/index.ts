@@ -301,6 +301,7 @@ router.get("/fetch-eraktkosh", async (_, res) => {
         time_updated = "LIVE";
       }
       var type = entry[5];
+      // TODO: instead of sending the response send it to zoho
       res.json({
         s_number,
         name,
