@@ -242,7 +242,7 @@ router.get("/get-helplines", (_, res) => __awaiter(void 0, void 0, void 0, funct
         res.status(500).send({ msg: "some problem" });
     res.status(200).send({ data: JSON.parse(data) });
 }));
-router.get("/fetch-eraktkosh", (_, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (_, res) => __awaiter(void 0, void 0, void 0, function* () {
     const city_list = {
         "35": "andaman_and_nicobar_islands",
     };

@@ -256,7 +256,7 @@ router.get("/get-helplines", async (_, res) => {
   res.status(200).send({ data: JSON.parse(data!) });
 });
 
-router.get("/fetch-eraktkosh", async (_, res) => {
+router.get("/fetch-eraktkosh", zohoMiddleware, async (_, res) => {
   const city_list = {
     "35": "andaman_and_nicobar_islands",
   };
@@ -301,6 +301,7 @@ router.get("/fetch-eraktkosh", async (_, res) => {
         time_updated = "LIVE";
       }
       var type = entry[5];
+
       // TODO: instead of sending the response send it to zoho
       res.json({
         s_number,
