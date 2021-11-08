@@ -256,9 +256,9 @@ router.get("/get-helplines", async (_, res) => {
   res.status(200).send({ data: JSON.parse(data!) });
 });
 
-router.get("/fetch-eraktkosh", zohoMiddleware, async (_, res) => {
+router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
   const city_list = {
-    "35": "andaman_and_nicobar_islands",
+    "35": "andaman_and_nicobar_islands", "29":"karnataka"
   };
   Object.keys(city_list).forEach(async (city_code) => {
     const short_url =
@@ -268,53 +268,74 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (_, res) => {
     const { data } = await Axios.get(short_url);
     const entries = data.data;
     entries.forEach((entry: any) => {
-      const s_number = entry[0];
+      //const s_number = entry[0];
       const details = entry[1].split("<br/>");
-      const name = details[0];
-      const address = details[1];
-      var phone = "-",
-        fax = "-",
-        email = "-";
+      const Blood_Bank_Name = details[0];
+      const Address = details[1];
+      var Phone = "-",
+        //fax = "-",
+        Email = "-";
       if (details[2] != null) {
         var s1 = details[2].replace("Phone: ", "?");
         var s2 = s1.replace(",Fax: ", "?");
         var s3 = s2.replace("Email: ", "?");
 
-        phone = s3.split("?")[1];
-        fax = s3.split("?")[2].replace(",", " ");
-        email = s3.split("?")[3];
+        Phone = s3.split("?")[1];
+        //fax = s3.split("?")[2].replace(",", " ");
+        Email = s3.split("?")[3];
       }
-
-      var category = entry[2];
-      var availability: string = entry[3];
-      if (availability.includes("Not")) {
-        availability = "NA";
+      //var category = entry[2];
+      var Availability: string = entry[3];
+      if (Availability.includes("Not")) {
+        Availability = "NA";
       } else {
-        availability = availability.replace(
+        Availability = Availability.replace(
           "<p class='text-success'>Available, ",
           " "
         );
-        availability = availability.replace("</p>", " ");
+        Availability = Availability.replace("</p>", " ");
       }
       var time_updated = entry[4];
       if (time_updated.includes("live")) {
         time_updated = "LIVE";
       }
-      var type = entry[5];
-
       // TODO: instead of sending the response send it to zoho
+      const reqData = {
+        data: {
+          // how to set current date Date: changeToddmmyyyy(Date),
+          Blood_Bank_Name: Blood_Bank_Name,
+          Region: city_code,
+          Address: Address,
+          Email: Email,
+          Phone: Phone,
+          Availability: Availability,
+        },
+      };
+      try{
+        Axios({
+          method: "POST",
+          url: process.env.BASE_URL! + "eRaktKosh_Data",
+          data: reqData,
+          headers: {
+            Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+          },
+        });
+        res.status(200).send({ msg: "success" });
+      } catch(e){
+        res.status(400).send({ msg: "failure" });
+      }
+      //var type = entry[5];
+      /*
       res.json({
-        s_number,
-        name,
-        address,
-        phone,
-        email,
-        fax,
-        category,
-        availability,
-        time_updated,
-        type,
-      });
+        
+        Blood_Bank_Name,
+        Region,
+        Address,
+        Phone,
+        Email,
+        Availability,
+        time_updated
+      });*/
     });
   });
 });
