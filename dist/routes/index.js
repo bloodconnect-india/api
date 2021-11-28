@@ -242,58 +242,82 @@ router.get("/get-helplines", (_, res) => __awaiter(void 0, void 0, void 0, funct
         res.status(500).send({ msg: "some problem" });
     res.status(200).send({ data: JSON.parse(data) });
 }));
-router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (_, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const city_list = {
-        "35": "andaman_and_nicobar_islands",
+        "35": "Andaman and Nicobar Islands",
+        "29": "Karnataka",
     };
+    let hasErrors = false;
     Object.keys(city_list).forEach((city_code) => __awaiter(void 0, void 0, void 0, function* () {
         const short_url = "https://www.eraktkosh.in/BLDAHIMS/bloodbank/nearbyBB.cnt?hmode=GETNEARBYSTOCKDETAILS&stateCode=" +
             city_code +
             "&districtCode=-1&bloodGroup=all&bloodComponent=11&lang=0&_=1633202320971";
         const { data } = yield axios_1.default.get(short_url);
         const entries = data.data;
-        entries.forEach((entry) => {
-            const s_number = entry[0];
+        entries.forEach((entry) => __awaiter(void 0, void 0, void 0, function* () {
             const details = entry[1].split("<br/>");
-            const name = details[0];
-            const address = details[1];
-            var phone = "-", fax = "-", email = "-";
+            const Blood_Bank_Name = details[0];
+            const Address = details[1];
+            var Phone = "-", Email = "-";
             if (details[2] != null) {
                 var s1 = details[2].replace("Phone: ", "?");
                 var s2 = s1.replace(",Fax: ", "?");
                 var s3 = s2.replace("Email: ", "?");
-                phone = s3.split("?")[1];
-                fax = s3.split("?")[2].replace(",", " ");
-                email = s3.split("?")[3];
+                Phone = s3.split("?")[1];
+                Email = s3.split("?")[3];
             }
-            var category = entry[2];
-            var availability = entry[3];
-            if (availability.includes("Not")) {
-                availability = "NA";
+            Phone = Phone.split(",")[0].substr(0, 10);
+            var Availability = entry[3];
+            if (Availability.includes("Not")) {
+                Availability = "NA";
             }
             else {
-                availability = availability.replace("<p class='text-success'>Available, ", " ");
-                availability = availability.replace("</p>", " ");
+                Availability = Availability.replace("<p class='text-success'>Available, ", " ");
+                Availability = Availability.replace("</p>", " ");
             }
             var time_updated = entry[4];
             if (time_updated.includes("live")) {
                 time_updated = "LIVE";
             }
-            var type = entry[5];
-            res.json({
-                s_number,
-                name,
-                address,
-                phone,
-                email,
-                fax,
-                category,
-                availability,
-                time_updated,
-                type,
-            });
-        });
+            const today = new Date();
+            const reqData = {
+                data: {
+                    Blood_Bank_Name: Blood_Bank_Name,
+                    Region: city_list[city_code],
+                    Address: Address,
+                    Email: Email,
+                    Phone_Number: "+91" + Phone,
+                    Availability: Availability,
+                    Date_field: today.getUTCDate() +
+                        "-" +
+                        today.getUTCMonth() +
+                        "-" +
+                        today.getUTCFullYear(),
+                },
+            };
+            try {
+                const { data } = yield axios_1.default({
+                    method: "POST",
+                    url: process.env.BASE_URL + "eRaktKosh_Data",
+                    data: reqData,
+                    headers: {
+                        Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
+                    },
+                });
+                console.log(data);
+            }
+            catch (e) {
+                hasErrors = true;
+                console.log("error: " + e);
+            }
+        }));
     }));
+    if (hasErrors) {
+        res.status(500).send({ msg: "failure" });
+    }
+    else {
+        res.status(200).send({ msg: "success" });
+    }
 }));
 exports.default = router;
 //# sourceMappingURL=index.js.map
