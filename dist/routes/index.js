@@ -280,7 +280,7 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
         "16": "Tripura",
         "95": "Uttarakhand",
         "99": "Uttar Pradesh",
-        "19": "West Bengal"
+        "19": "West Bengal",
     };
     let hasErrors = false;
     Object.keys(city_list).forEach((city_code) => __awaiter(void 0, void 0, void 0, function* () {
