@@ -8,7 +8,7 @@ import session from "express-session";
 
 import root from "./routes/index";
 import feedback from "./routes/feedback";
-import payment from "./routes/payment"
+import payment from "./routes/payment";
 
 const app = express();
 const RedisStore = connectRedis(session);
@@ -21,7 +21,7 @@ app.use(
     name: process.env.SESSION_NAME!,
     store: new RedisStore({
       client: redis,
-      ttl: 3600, // in seconds
+      ttl: 2 * 3600, // in seconds
       disableTouch: true,
     }),
     secret: process.env.SESSION_SECRET!,
@@ -30,9 +30,9 @@ app.use(
   })
 );
 app.use("/", root);
-app.use("/feedback",feedback);
-app.use("/payment",payment);
+app.use("/feedback", feedback);
+app.use("/payment", payment);
 app.listen(process.env.PORT, () => {
-  console.log("server started at port : ",process.env.PORT);
+  console.log("server started at port : ", process.env.PORT);
 });
 export default app;

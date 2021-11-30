@@ -22,7 +22,7 @@ app.use(express_session_1.default({
     name: process.env.SESSION_NAME,
     store: new RedisStore({
         client: redis,
-        ttl: 3600,
+        ttl: 2 * 3600,
         disableTouch: true,
     }),
     secret: process.env.SESSION_SECRET,

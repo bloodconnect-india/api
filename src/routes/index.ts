@@ -256,4 +256,127 @@ router.get("/get-helplines", async (_, res) => {
   res.status(200).send({ data: JSON.parse(data!) });
 });
 
+router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
+  const city_list: Record<string, string> = {
+    "35": "Andaman and Nicobar Islands",
+    "28": "Andhra Pradesh",
+    "12": "Arunachal Pradesh",
+    "18": "Assam",
+    "10": "Bihar",
+    "94": "Chandigarh",
+    "22": "Chattisgarh",
+    "26": "Dadra and Nagar Haveli",
+    "25": "Daman and Diu",
+    "97": "Delhi",
+    "24": "Gujarat",
+    "30": "Goa",
+    "96": "Haryana",
+    "92": "Himachal",
+    "91": "Jammu and Kashmir",
+    "20": "Jharkhand",
+    "29": "Karnataka",
+    "32": "Kerala",
+    "37": "Ladakh",
+    "31": "Lakshdweep",
+    "23": "Madhya Pradesh",
+    "27": "Maharashtra",
+    "14": "Manipur",
+    "17": "Meghalaya",
+    "15": "Mizoram",
+    "13": "Nagaland",
+    "21": "Odisha",
+    "34": "Puducherry",
+    "93": "Punjab",
+    "98": "Rajasthan",
+    "11": "Sikkim",
+    "33": "Tamil Nadu",
+    "36": "Telangana",
+    "16": "Tripura",
+    "95": "Uttarakhand",
+    "99": "Uttar Pradesh",
+    "19": "West Bengal",
+  };
+  let hasErrors = false;
+  Object.keys(city_list).forEach(async (city_code) => {
+    const short_url =
+      "https://www.eraktkosh.in/BLDAHIMS/bloodbank/nearbyBB.cnt?hmode=GETNEARBYSTOCKDETAILS&stateCode=" +
+      city_code +
+      "&districtCode=-1&bloodGroup=all&bloodComponent=11&lang=0&_=1633202320971";
+    const { data } = await Axios.get(short_url);
+    const entries = data.data;
+    entries.forEach(async (entry: any) => {
+      //const s_number = entry[0];
+      const details = entry[1].split("<br/>");
+      const Blood_Bank_Name = details[0];
+      const Address = details[1];
+      var Phone = "-",
+        //fax = "-",
+        Email = "-";
+      if (details[2] != null) {
+        var s1 = details[2].replace("Phone: ", "?");
+        var s2 = s1.replace(",Fax: ", "?");
+        var s3 = s2.replace("Email: ", "?");
+
+        Phone = s3.split("?")[1];
+        //fax = s3.split("?")[2].replace(",", " ");
+        Email = s3.split("?")[3];
+      }
+      Phone = Phone.split(",")[0].substr(0, 10);
+      //var category = entry[2];
+      var Availability: string = entry[3];
+      if (Availability.includes("Not")) {
+        Availability = "NA";
+      } else {
+        Availability = Availability.replace(
+          "<p class='text-success'>Available, ",
+          " "
+        );
+        Availability = Availability.replace("</p>", " ");
+      }
+      var time_updated = entry[4];
+      if (time_updated.includes("live")) {
+        time_updated = "LIVE";
+      }
+      // TODO: instead of sending the response send it to zoho
+      const today = new Date();
+      const reqData = {
+        data: {
+          // how to set current date Date: changeToddmmyyyy(Date),
+          Blood_Bank_Name: Blood_Bank_Name,
+          Region: city_list[city_code],
+          Address: Address,
+          Email: Email,
+          Phone_Number: "+91" + Phone,
+          Availability: Availability,
+          Date_field:
+            today.getUTCDate() +
+            "-" +
+            today.getUTCMonth() +
+            "-" +
+            today.getUTCFullYear(),
+        },
+      };
+      try {
+        const { data } = await Axios({
+          method: "POST",
+          url: process.env.BASE_URL! + "eRaktKosh_Data",
+          data: reqData,
+          headers: {
+            Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+          },
+        });
+        console.log(data);
+      } catch (e) {
+        hasErrors = true;
+        console.log("error: " + e);
+      }
+    });
+  });
+  if (hasErrors) {
+    res.status(500).send({ msg: "failure" });
+  } else {
+    res.status(200).send({ msg: "success" });
+  }
+});
+
 export default router;
