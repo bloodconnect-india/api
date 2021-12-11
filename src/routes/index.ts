@@ -257,6 +257,8 @@ router.get("/get-helplines", async (_, res) => {
 });
 
 router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
+ 
+  // 0: A+, 1: O+, 2: B+, 3: AB+, 4:A-, 5: O-, 6: B-, 7: AB-
   const city_list: Record<string, string> = {
     "35": "Andaman and Nicobar Islands",
     "28": "Andhra Pradesh",
@@ -304,13 +306,14 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
       "&districtCode=-1&bloodGroup=all&bloodComponent=11&lang=0&_=1633202320971";
     const { data } = await Axios.get(short_url);
     const entries = data.data;
+    
     entries.forEach(async (entry: any) => {
-      //const s_number = entry[0];
+      var blood_groups = [0,0,0,0,0,0,0,0];
+      //[A+,O+,B+,AB+,A-,O-,B-,AB-]
       const details = entry[1].split("<br/>");
       const Blood_Bank_Name = details[0];
       const Address = details[1];
       var Phone = "-",
-        //fax = "-",
         Email = "-";
       if (details[2] != null) {
         var s1 = details[2].replace("Phone: ", "?");
@@ -318,7 +321,6 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
         var s3 = s2.replace("Email: ", "?");
 
         Phone = s3.split("?")[1];
-        //fax = s3.split("?")[2].replace(",", " ");
         Email = s3.split("?")[3];
       }
       Phone = Phone.split(",")[0].substr(0, 10);
@@ -326,22 +328,60 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
       var Availability: string = entry[3];
       if (Availability.includes("Not")) {
         Availability = "NA";
-      } else {
-        Availability = Availability.replace(
-          "<p class='text-success'>Available, ",
-          " "
-        );
-        Availability = Availability.replace("</p>", " ");
+      } 
+      else {
+          Availability = Availability.replace(
+            "<p class='text-success'>Available, ",
+            " "
+          );
+          Availability = Availability.replace("</p>", " ");
+          Availability = Availability.replace(" ","");
+          Availability = Availability.split(',');
+          Availability.forEach(async (item: any) => {
+            var foo = item.slice(-1);
+            var tre : number = foo *1 ;
+              if(item.includes("AB+Ve")){
+                blood_groups[3] += tre;
+              }
+              else if(item.includes("O+Ve")){
+                blood_groups[1] += tre;
+              }
+              else if(item.includes("AB-Ve")){
+                blood_groups[7] += tre;
+              }
+              else if(item.includes("B+Ve")){
+                blood_groups[2] += tre;
+              }
+              else if(item.includes("A-Ve")){
+                blood_groups[4] += tre;
+              }
+              else if(item.includes("0-Ve")){
+                blood_groups[5] += tre;
+              }
+              else if(item.includes("B-Ve")){
+                blood_groups[6] += tre;
+              }
+              else if(item.includes("A+Ve")){
+                blood_groups[0] += tre;
+              }
+          });
+        }
+      var total_number : number = 0;
+      blood_groups.forEach(async (item:any) =>{
+        total_number += item;
+      });
+        //TO DO : send the bloodgroup array and total blood groups to the response along each entry
+        //TO DO : add time updated as a response
+   
       }
       var time_updated = entry[4];
       if (time_updated.includes("live")) {
         time_updated = "LIVE";
       }
-      // TODO: instead of sending the response send it to zoho
+ 
       const today = new Date();
       const reqData = {
         data: {
-          // how to set current date Date: changeToddmmyyyy(Date),
           Blood_Bank_Name: Blood_Bank_Name,
           Region: city_list[city_code],
           Address: Address,
