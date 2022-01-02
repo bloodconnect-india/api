@@ -315,16 +315,16 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                 time_updated = "LIVE";
             }
             const today = new Date();
-            let date = 0;
-            if(today.getUTCDate() < 10){
-                date = '0' + today.getUTCDate();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1;
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd;
             }
-            else date = today.getUTCDate();
-            let month = 0;
-            if(today.getUTCMonth() < 10){
-                month = '0' + today.getUTCMonth();
+            if (mm < 10) {
+                mm = '0' + mm;
             }
-            else month = today.getUTCMonth();
+            var tod = dd + '-' + mm + '-' + yyyy;
             const reqData = {
                 data: {
                     Blood_Bank_Name: Blood_Bank_Name,
@@ -333,11 +333,7 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                     Email: Email,
                     Phone_Number: "+91" + Phone,
                     Availability: Availability,
-                    Date_field: date +
-                        "-" +
-                        month +
-                        "-" +
-                        today.getUTCFullYear(),
+                    Date_field: tod,
                 },
             };
             try {
