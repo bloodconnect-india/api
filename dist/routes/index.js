@@ -310,10 +310,6 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                 Availability = Availability.replace("<p class='text-success'>Available, ", " ");
                 Availability = Availability.replace("</p>", " ");
             }
-            var time_updated = entry[4];
-            if (time_updated.includes("live")) {
-                time_updated = "LIVE";
-            }
             const today = new Date();
             var dd = today.getDate();
             var mm = today.getMonth() + 1;
@@ -325,6 +321,10 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                 mm = '0' + mm;
             }
             var tod = dd + '-' + mm + '-' + yyyy;
+            var time_updated = entry[4];
+            if (time_updated.includes("live")) {
+                time_updated = tod + " " + today.toLocaleTimeString('it-IT');
+            }
             const reqData = {
                 data: {
                     Blood_Bank_Name: Blood_Bank_Name,
@@ -334,8 +334,10 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                     Phone_Number: "+91" + Phone,
                     Availability: Availability,
                     Date_field: tod,
+                    Last_Time_Updated: time_updated,  
                 },
             };
+
             try {
                 const { data } = yield axios_1.default({
                     method: "POST",
