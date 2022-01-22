@@ -33,7 +33,7 @@ app.use(express_session_1.default({
 app.use("/", index_1.default);
 app.use("/feedback", feedback_1.default);
 app.use("/payment", payment_1.default);
-app.use("/payment", bot_1.default);
+app.use("/bot", bot_1.default);
 app.listen(process.env.PORT, () => {
     console.log("server started at port : ", process.env.PORT);
 });

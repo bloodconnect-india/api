@@ -33,7 +33,7 @@ app.use(
 app.use("/", root);
 app.use("/feedback", feedback);
 app.use("/payment", payment);
-app.use("/payment", bot);
+app.use("/bot", bot);
 app.listen(process.env.PORT, () => {
   console.log("server started at port : ", process.env.PORT);
 });
