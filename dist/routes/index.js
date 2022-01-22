@@ -314,16 +314,17 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
             var dd = today.getDate();
             var mm = today.getMonth() + 1;
             var yyyy = today.getFullYear();
+            var d = dd + "", m = mm + "";
             if (dd < 10) {
-                dd = '0' + dd;
+                d = "0" + dd;
             }
             if (mm < 10) {
-                mm = '0' + mm;
+                m = "0" + mm;
             }
-            var tod = dd + '-' + mm + '-' + yyyy;
+            var tod = d + "-" + m + "-" + yyyy;
             var time_updated = entry[4];
             if (time_updated.includes("live")) {
-                time_updated = tod + " " + today.toLocaleTimeString('it-IT');
+                time_updated = tod + " " + today.toLocaleTimeString("it-IT");
             }
             const reqData = {
                 data: {
@@ -334,10 +335,9 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                     Phone_Number: "+91" + Phone,
                     Availability: Availability,
                     Date_field: tod,
-                    Last_Time_Updated: time_updated,  
+                    Last_Time_Updated: time_updated,
                 },
             };
-
             try {
                 const { data } = yield axios_1.default({
                     method: "POST",

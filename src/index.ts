@@ -9,6 +9,7 @@ import session from "express-session";
 import root from "./routes/index";
 import feedback from "./routes/feedback";
 import payment from "./routes/payment";
+import bot from "./routes/bot";
 
 const app = express();
 const RedisStore = connectRedis(session);
@@ -32,6 +33,7 @@ app.use(
 app.use("/", root);
 app.use("/feedback", feedback);
 app.use("/payment", payment);
+app.use("/payment", bot);
 app.listen(process.env.PORT, () => {
   console.log("server started at port : ", process.env.PORT);
 });

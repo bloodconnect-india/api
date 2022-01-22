@@ -333,27 +333,33 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
         );
         Availability = Availability.replace("</p>", " ");
       }
+      const today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth() + 1;
+      var yyyy = today.getFullYear();
+      var d = dd + "",
+        m = mm + "";
+      if (dd < 10) {
+        d = "0" + dd;
+      }
+      if (mm < 10) {
+        m = "0" + mm;
+      }
+      var tod = d + "-" + m + "-" + yyyy;
       var time_updated = entry[4];
       if (time_updated.includes("live")) {
-        time_updated = "LIVE";
+        time_updated = tod + " " + today.toLocaleTimeString("it-IT");
       }
-      // TODO: instead of sending the response send it to zoho
-      const today = new Date();
       const reqData = {
         data: {
-          // how to set current date Date: changeToddmmyyyy(Date),
           Blood_Bank_Name: Blood_Bank_Name,
           Region: city_list[city_code],
           Address: Address,
           Email: Email,
           Phone_Number: "+91" + Phone,
           Availability: Availability,
-          Date_field:
-            today.getUTCDate() +
-            "-" +
-            today.getUTCMonth() +
-            "-" +
-            today.getUTCFullYear(),
+          Date_field: tod,
+          Last_Time_Updated: time_updated,
         },
       };
       try {
