@@ -347,8 +347,9 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
       }
       var tod = d + "-" + m + "-" + yyyy;
       var time_updated = entry[4];
+      var time = today.toTimeString().split(" ")[0];
       if (time_updated.includes("live")) {
-        time_updated = tod + " " + today.toTimeString().split(" ")[0];
+        time_updated = tod + " " + time;
       }
       const reqData = {
         data: {
