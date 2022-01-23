@@ -347,13 +347,14 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
       }
       var tod = d + "-" + m + "-" + yyyy;
       var time_updated = entry[4];
-      let hr = today.getHours();
-      let mn = today.getMinutes();
-      let sc = today.getSeconds();
-      if(hr<10){ hr = '0' + hr;}
-      if(mn<10){ mm = '0' + mn;}
-      if(sc<10){ sc = '0' + sc;}
-      let time = hr + "-" + mn + "-" + sc;
+      var hr = today.getHours();
+      var mn = today.getMinutes();
+      var sc = today.getSeconds();
+      var h = hr + "", m = mn + "", s = sc + "";
+      if(hr<10){ h = "0" + hr;}
+      if(mn<10){ m = "0" + mn;}
+      if(sc<10){ s = "0" + sc;}
+      let time = h + "-" + m + "-" + s;
       if (time_updated.includes("live")) {
         time_updated = tod + " " + time;
       }
