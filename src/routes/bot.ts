@@ -6,12 +6,7 @@ const router = express.Router();
 
 router.post("/camp", zohoMiddleware, async (req, res) => {
   let reqData = {
-    data: {
-      Name: req.body.name,
-      Organization: req.body.organization,
-      Phone_Number: req.body.phone_number,
-      City: req.body.city,
-    },
+    data: req.body,
   };
   try {
     await Axios({

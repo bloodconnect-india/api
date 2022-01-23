@@ -18,12 +18,7 @@ const zoho_1 = require("../helpers/zoho");
 const router = express_1.default.Router();
 router.post("/camp", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let reqData = {
-        data: {
-            Name: req.body.name,
-            Organization: req.body.organization,
-            Phone_Number: req.body.phone_number,
-            City: req.body.city,
-        },
+        data: req.body,
     };
     try {
         yield axios_1.default({
