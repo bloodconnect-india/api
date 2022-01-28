@@ -346,8 +346,8 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
         m = "0" + mm;
       }
       var tod = d + "-" + m + "-" + yyyy;
-      var live = 'N';
-      var time_updated = entry[4].replaceAll(":","-");
+      var live = 'Y';
+      var time_updated = entry[4];
       var hr = today.getHours();
       var mn = today.getMinutes();
       var sc = today.getSeconds();
@@ -356,10 +356,14 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
       if(mn<10){ m = "0" + mn;}
       if(sc<10){ s = "0" + sc;}
       let time = h + "-" + m + "-" + s;
-      if (time_updated.includes("live")) {
-        time_updated = tod + " " + time;
-        live = 'Y';
+      if (!time_updated.includes("live")) {
+        var date_and_time = time_updated.split(" "); 
+        tod = date_and_time[0].split("-");
+        tod = "" + tod[2] + "-" +tod[1] + "-" + tod[0];
+        time = date_and_time[1].replaceAll(":","-");
+        live = 'N';
       }
+      time_updated = tod + " " + time;
       const reqData = {
         data: {
           Blood_Bank_Name: Blood_Bank_Name,
