@@ -359,7 +359,7 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
       if (!time_updated.includes("live")) {
         var date_and_time = time_updated.split(" "); 
         tod = date_and_time[0].split("-");
-        tod = "" + tod[2] + "-" +tod[1] + "-" + tod[0];
+        tod = tod[2] + "-" +tod[1] + "-" + tod[0];
         time = date_and_time[1];
         live = 'N';
       }
