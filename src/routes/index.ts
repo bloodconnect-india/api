@@ -370,7 +370,7 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
           Region: city_list[city_code],
           Address: Address,
           Email: Email,
-          Phone_1: Phone,
+          Phone_Number: Phone,
           Availability: Availability,
           Date_field: tod,
           Last_Time_Updated: time_updated,
