@@ -360,7 +360,7 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
         var date_and_time = time_updated.split(" "); 
         tod = date_and_time[0].split("-");
         tod = "" + tod[2] + "-" +tod[1] + "-" + tod[0];
-        time = date_and_time[1].replaceAll(":","-");
+        time = date_and_time[1];
         live = 'N';
       }
       time_updated = tod + " " + time;
