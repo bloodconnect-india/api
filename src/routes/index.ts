@@ -321,7 +321,7 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
         //fax = s3.split("?")[2].replace(",", " ");
         Email = s3.split("?")[3];
       }
-      Phone = Phone.split(",")[0].substr(0, 10);
+      
       //var category = entry[2];
       var Availability: string = entry[3];
       if (Availability.includes("Not")) {
@@ -370,7 +370,7 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
           Region: city_list[city_code],
           Address: Address,
           Email: Email,
-          Phone_Number: "+91" + Phone,
+          Phone_1: Phone,
           Availability: Availability,
           Date_field: tod,
           Last_Time_Updated: time_updated,
