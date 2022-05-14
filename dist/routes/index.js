@@ -242,21 +242,11 @@ router.get("/get-helplines", (_, res) => __awaiter(void 0, void 0, void 0, funct
         res.status(500).send({ msg: "some problem" });
     res.status(200).send({ data: JSON.parse(data) });
 }));
-router.get("/fetch-eraktkosh", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('e rakht kosh');
-    var count = 0;
+router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const city_list = {
-        "94": "Chandigarh",
-        "22": "Chattisgarh",
-        "26": "Dadra and Nagar Haveli",
-        "25": "Daman and Diu",
         "97": "Delhi",
     };
     let hasErrors = false;
-    const allData = [];
-    const token_data = yield zoho_1.getToken();
-    const token = token_data.data.access_token;
-    console.log(token_data.data);
     Object.keys(city_list).forEach((city_code) => __awaiter(void 0, void 0, void 0, function* () {
         const short_url = "https://www.eraktkosh.in/BLDAHIMS/bloodbank/nearbyBB.cnt?hmode=GETNEARBYSTOCKDETAILS&stateCode=" +
             city_code +
@@ -306,23 +296,20 @@ router.get("/fetch-eraktkosh", (req, res) => __awaiter(void 0, void 0, void 0, f
                     Date_field: tod,
                 },
             };
-            allData.push(reqData.data);
             try {
-                const { status } = yield axios_1.default({
+                const { data } = yield axios_1.default({
                     method: "POST",
                     url: process.env.BASE_URL + "eRaktKosh_Data",
                     data: reqData,
                     headers: {
-                        Authorization: `Zoho-oauthtoken ${token}`,
+                        Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
                     },
                 });
-                console.log('status: ', status);
-                console.log('entry added ' + count++);
+                console.log(data);
             }
             catch (e) {
                 hasErrors = true;
                 console.log("error: " + e);
-                console.log(reqData);
             }
         }));
     }));
@@ -330,7 +317,7 @@ router.get("/fetch-eraktkosh", (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(500).send({ msg: "failure" });
     }
     else {
-        res.status(200).send(allData);
+        res.status(200).send({ msg: "success" });
     }
 }));
 exports.default = router;
