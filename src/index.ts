@@ -14,17 +14,24 @@ import bot from "./routes/bot";
 const app = express();
 const RedisStore = connectRedis(session);
 const redis = new Redis(process.env.REDIS_URL);
+const devDeployment = process.env.DEPLOYMENT === 'local';
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(
-  session({
+  !devDeployment ? session({
     name: process.env.SESSION_NAME!,
     store: new RedisStore({
       client: redis,
       ttl: 2 * 3600, // in seconds
       disableTouch: true,
     }),
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: true,
+  }): 
+  session({
+    name: process.env.SESSION_NAME!,
     secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: true,

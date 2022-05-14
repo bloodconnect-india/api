@@ -244,43 +244,7 @@ router.get("/get-helplines", (_, res) => __awaiter(void 0, void 0, void 0, funct
 }));
 router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const city_list = {
-        "35": "Andaman and Nicobar Islands",
-        "28": "Andhra Pradesh",
-        "12": "Arunachal Pradesh",
-        "18": "Assam",
-        "10": "Bihar",
-        "94": "Chandigarh",
-        "22": "Chattisgarh",
-        "26": "Dadra and Nagar Haveli",
-        "25": "Daman and Diu",
         "97": "Delhi",
-        "24": "Gujarat",
-        "30": "Goa",
-        "96": "Haryana",
-        "92": "Himachal",
-        "91": "Jammu and Kashmir",
-        "20": "Jharkhand",
-        "29": "Karnataka",
-        "32": "Kerala",
-        "37": "Ladakh",
-        "31": "Lakshdweep",
-        "23": "Madhya Pradesh",
-        "27": "Maharashtra",
-        "14": "Manipur",
-        "17": "Meghalaya",
-        "15": "Mizoram",
-        "13": "Nagaland",
-        "21": "Odisha",
-        "34": "Puducherry",
-        "93": "Punjab",
-        "98": "Rajasthan",
-        "11": "Sikkim",
-        "33": "Tamil Nadu",
-        "36": "Telangana",
-        "16": "Tripura",
-        "95": "Uttarakhand",
-        "99": "Uttar Pradesh",
-        "19": "West Bengal",
     };
     let hasErrors = false;
     Object.keys(city_list).forEach((city_code) => __awaiter(void 0, void 0, void 0, function* () {
@@ -301,7 +265,6 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                 Phone = s3.split("?")[1];
                 Email = s3.split("?")[3];
             }
-            Phone = Phone.split(",")[0].substr(0, 10);
             var Availability = entry[3];
             if (Availability.includes("Not")) {
                 Availability = "NA";
@@ -322,20 +285,15 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                 m = "0" + mm;
             }
             var tod = d + "-" + m + "-" + yyyy;
-            var time_updated = entry[4];
-            if (time_updated.includes("live")) {
-                time_updated = tod + " " + today.toLocaleTimeString("it-IT");
-            }
             const reqData = {
                 data: {
                     Blood_Bank_Name: Blood_Bank_Name,
                     Region: city_list[city_code],
                     Address: Address,
                     Email: Email,
-                    Phone_Number: "+91" + Phone,
+                    Phone_Number: Phone,
                     Availability: Availability,
                     Date_field: tod,
-                    Last_Time_Updated: time_updated,
                 },
             };
             try {
