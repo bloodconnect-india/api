@@ -24,6 +24,7 @@ exports.zohoMiddleware = (req, _, next) => __awaiter(void 0, void 0, void 0, fun
         next();
     else {
         let { data } = yield exports.getToken();
+        console.log(data);
         req.session.zoho = data.access_token;
         next();
     }

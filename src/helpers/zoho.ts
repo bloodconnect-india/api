@@ -4,7 +4,7 @@ import { REFRESH_RESPONSE } from "src/types";
 
 export const getToken = (): Promise<AxiosResponse<REFRESH_RESPONSE>> => {
   return Axios.post<any, AxiosResponse<REFRESH_RESPONSE>>(
-    process.env.REFRESH_URL!
+   process.env.REFRESH_URL!
   );
 };
 
@@ -17,7 +17,7 @@ export const zohoMiddleware = async (
   if (req.session?.zoho) next();
   else {
     let { data } = await getToken();
-
+    console.log(data);
     req.session!.zoho = data.access_token;
     next();
   }
