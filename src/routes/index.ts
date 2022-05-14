@@ -3,7 +3,7 @@ import express from "express";
 import Redis from "ioredis";
 import { CITYSTAT, MONTHSTAT } from "../../src/types";
 import { changeToddmmyyyy } from "../helpers";
-import { cityMiddleware, zohoMiddleware } from "../helpers/zoho";
+import { cityMiddleware, getToken, zohoMiddleware } from "../helpers/zoho";
 
 const router = express.Router();
 const redis = new Redis(process.env.REDIS_URL);
@@ -256,17 +256,19 @@ router.get("/get-helplines", async (_, res) => {
   res.status(200).send({ data: JSON.parse(data!) });
 });
 
-router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
+router.get("/fetch-eraktkosh", async (req, res) => {
+  console.log('e rakht kosh')
+  var count = 0;
   const city_list: Record<string, string> = {
 //     "35": "Andaman and Nicobar Islands",
 //     "28": "Andhra Pradesh",
 //     "12": "Arunachal Pradesh",
 //     "18": "Assam",
 //     "10": "Bihar",
-//     "94": "Chandigarh",
-//     "22": "Chattisgarh",
-//     "26": "Dadra and Nagar Haveli",
-//     "25": "Daman and Diu",
+    "94": "Chandigarh",
+    "22": "Chattisgarh",
+    "26": "Dadra and Nagar Haveli",
+    "25": "Daman and Diu",
     "97": "Delhi",
 //     "24": "Gujarat",
 //     "30": "Goa",
@@ -297,6 +299,12 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
 //     "19": "West Bengal",
   };
   let hasErrors = false;
+  const allData: { Blood_Bank_Name: any; Region: string; Address: any; Email: string; Phone_Number: string; Availability: string; Date_field: string; }[] = [];
+  const token_data = await getToken();
+  const token = token_data.data.access_token;
+  console.log(token_data.data);
+
+
   Object.keys(city_list).forEach(async (city_code) => {
     const short_url =
       "https://www.eraktkosh.in/BLDAHIMS/bloodbank/nearbyBB.cnt?hmode=GETNEARBYSTOCKDETAILS&stateCode=" +
@@ -375,26 +383,30 @@ router.get("/fetch-eraktkosh", zohoMiddleware, async (req, res) => {
           Date_field: tod,
         },
       };
+      allData.push(reqData.data);
       try {
-        const { data } = await Axios({
+        const {  status} = await Axios({
           method: "POST",
           url: process.env.BASE_URL! + "eRaktKosh_Data",
           data: reqData,
           headers: {
-            Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+            Authorization: `Zoho-oauthtoken ${token}`,
           },
         });
-        console.log(data);
+        console.log('status: ', status)
+        console.log('entry added '+count++);
       } catch (e) {
         hasErrors = true;
         console.log("error: " + e);
+        console.log(reqData);
       }
     });
   });
   if (hasErrors) {
     res.status(500).send({ msg: "failure" });
   } else {
-    res.status(200).send({ msg: "success" });
+    res.status(200).send(allData);
+    // res.status(200).send({ msg: "success" });
   }
 });
 

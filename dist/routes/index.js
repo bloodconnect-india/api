@@ -242,47 +242,21 @@ router.get("/get-helplines", (_, res) => __awaiter(void 0, void 0, void 0, funct
         res.status(500).send({ msg: "some problem" });
     res.status(200).send({ data: JSON.parse(data) });
 }));
-router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/fetch-eraktkosh", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('e rakht kosh');
+    var count = 0;
     const city_list = {
-        "35": "Andaman and Nicobar Islands",
-        "28": "Andhra Pradesh",
-        "12": "Arunachal Pradesh",
-        "18": "Assam",
-        "10": "Bihar",
         "94": "Chandigarh",
         "22": "Chattisgarh",
         "26": "Dadra and Nagar Haveli",
         "25": "Daman and Diu",
         "97": "Delhi",
-        "24": "Gujarat",
-        "30": "Goa",
-        "96": "Haryana",
-        "92": "Himachal",
-        "91": "Jammu and Kashmir",
-        "20": "Jharkhand",
-        "29": "Karnataka",
-        "32": "Kerala",
-        "37": "Ladakh",
-        "31": "Lakshdweep",
-        "23": "Madhya Pradesh",
-        "27": "Maharashtra",
-        "14": "Manipur",
-        "17": "Meghalaya",
-        "15": "Mizoram",
-        "13": "Nagaland",
-        "21": "Odisha",
-        "34": "Puducherry",
-        "93": "Punjab",
-        "98": "Rajasthan",
-        "11": "Sikkim",
-        "33": "Tamil Nadu",
-        "36": "Telangana",
-        "16": "Tripura",
-        "95": "Uttarakhand",
-        "99": "Uttar Pradesh",
-        "19": "West Bengal",
     };
     let hasErrors = false;
+    const allData = [];
+    const token_data = yield zoho_1.getToken();
+    const token = token_data.data.access_token;
+    console.log(token_data.data);
     Object.keys(city_list).forEach((city_code) => __awaiter(void 0, void 0, void 0, function* () {
         const short_url = "https://www.eraktkosh.in/BLDAHIMS/bloodbank/nearbyBB.cnt?hmode=GETNEARBYSTOCKDETAILS&stateCode=" +
             city_code +
@@ -301,7 +275,6 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                 Phone = s3.split("?")[1];
                 Email = s3.split("?")[3];
             }
-            Phone = Phone.split(",")[0].substr(0, 10);
             var Availability = entry[3];
             if (Availability.includes("Not")) {
                 Availability = "NA";
@@ -322,36 +295,34 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
                 m = "0" + mm;
             }
             var tod = d + "-" + m + "-" + yyyy;
-            var time_updated = entry[4];
-            if (time_updated.includes("live")) {
-                time_updated = tod + " " + today.toLocaleTimeString("it-IT");
-            }
             const reqData = {
                 data: {
                     Blood_Bank_Name: Blood_Bank_Name,
                     Region: city_list[city_code],
                     Address: Address,
                     Email: Email,
-                    Phone_Number: "+91" + Phone,
+                    Phone_Number: Phone,
                     Availability: Availability,
                     Date_field: tod,
-                    Last_Time_Updated: time_updated,
                 },
             };
+            allData.push(reqData.data);
             try {
-                const { data } = yield axios_1.default({
+                const { status } = yield axios_1.default({
                     method: "POST",
                     url: process.env.BASE_URL + "eRaktKosh_Data",
                     data: reqData,
                     headers: {
-                        Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
+                        Authorization: `Zoho-oauthtoken ${token}`,
                     },
                 });
-                console.log(data);
+                console.log('status: ', status);
+                console.log('entry added ' + count++);
             }
             catch (e) {
                 hasErrors = true;
                 console.log("error: " + e);
+                console.log(reqData);
             }
         }));
     }));
@@ -359,7 +330,7 @@ router.get("/fetch-eraktkosh", zoho_1.zohoMiddleware, (req, res) => __awaiter(vo
         res.status(500).send({ msg: "failure" });
     }
     else {
-        res.status(200).send({ msg: "success" });
+        res.status(200).send(allData);
     }
 }));
 exports.default = router;
