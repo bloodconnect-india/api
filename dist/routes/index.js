@@ -247,58 +247,133 @@ router.get('/get-helplines', (_, res) => __awaiter(void 0, void 0, void 0, funct
     res.status(200).send({ data: JSON.parse(data) });
 }));
 router.get('/fetch-eraktkosh', zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('e rakht kosh');
+    var _c;
+    console.log('e rakht-kosh');
     const city_list = {
-        '22': 'Chattisgarh',
+        "35": "Andaman and Nicobar Islands",
+        "28": "Andhra Pradesh",
+        "12": "Arunachal Pradesh",
+        "18": "Assam",
+        "10": "Bihar",
+        "94": "Chandigarh",
+        "22": "Chattisgarh",
+        "26": "Dadra and Nagar Haveli",
+        "25": "Daman and Diu",
+        "97": "Delhi",
+        "24": "Gujarat",
+        "30": "Goa",
+        "96": "Haryana",
+        "92": "Himachal",
+        "91": "Jammu and Kashmir",
+        "20": "Jharkhand",
+        "29": "Karnataka",
+        "32": "Kerala",
+        "37": "Ladakh",
+        "31": "Lakshdweep",
+        "23": "Madhya Pradesh",
+        "27": "Maharashtra",
+        "14": "Manipur",
+        "17": "Meghalaya",
+        "15": "Mizoram",
+        "13": "Nagaland",
+        "21": "Odisha",
+        "34": "Puducherry",
+        "93": "Punjab",
+        "98": "Rajasthan",
+        "11": "Sikkim",
+        "33": "Tamil Nadu",
+        "36": "Telangana",
+        "16": "Tripura",
+        "95": "Uttarakhand",
+        "99": "Uttar Pradesh",
+        "19": "West Bengal",
     };
     let hasErrors = false;
     const cityCodes = Object.keys(city_list);
-    let response = {};
+    let count = 0;
     for (let i = 0; i < cityCodes.length; i++) {
+        count = 0;
         const cityUrl = ERAKTKOSH_URL_PREFIX + cityCodes[i] + ERAKTKOSH_URL_SUFFIX;
         try {
-            const { data } = yield axios_1.default.get(cityUrl);
             const cityData = [];
-            data.data.forEach((e) => {
+            const { data } = yield axios_1.default.get(cityUrl);
+            (_c = data.data) === null || _c === void 0 ? void 0 : _c.forEach((e) => {
                 const currEntry = helpers_1.processRaktKoshEntry(e, city_list[cityCodes[i]]);
                 cityData.push(currEntry);
             });
-            try {
-                const { status, data } = yield axios_1.default({
-                    method: 'POST',
-                    url: process.env.BASE_URL + 'eRaktKosh_Data',
-                    data: { data: cityData },
-                    headers: {
-                        Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
-                    },
-                    validateStatus: function (_) {
-                        return true;
-                    },
-                });
-                console.log('status: ', status);
-                if (data.result) {
-                    data.result.forEach((r) => {
-                        if (r.error) {
-                            console.log('error:', r.error[0]);
+            if (cityData.length > 199) {
+                let start_idx = 0;
+                let end_idx = 199;
+                while (count < cityData.length) {
+                    try {
+                        const { data } = yield axios_1.default({
+                            method: 'POST',
+                            url: process.env.BASE_URL + 'eRaktKosh_Data',
+                            data: { data: cityData.slice(start_idx, end_idx) },
+                            headers: {
+                                Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
+                            },
+                            validateStatus: function (_) {
+                                return true;
+                            },
+                        });
+                        if (data.result) {
+                            data.result.forEach((r) => {
+                                if (r.error) {
+                                    console.log('error:', r.error[0]);
+                                }
+                            });
                         }
-                    });
+                    }
+                    catch (e) {
+                        hasErrors = true;
+                        console.log('error: ' + e);
+                    }
+                    start_idx += 199;
+                    if (end_idx + 199 > cityData.length) {
+                        end_idx = cityData.length;
+                    }
+                    else
+                        end_idx += 199;
+                    count += 199;
                 }
             }
-            catch (e) {
-                hasErrors = true;
-                console.log('error: ' + e);
+            else {
+                try {
+                    const { data } = yield axios_1.default({
+                        method: 'POST',
+                        url: process.env.BASE_URL + 'eRaktKosh_Data',
+                        data: { data: cityData },
+                        headers: {
+                            Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
+                        },
+                        validateStatus: function (_) {
+                            return true;
+                        },
+                    });
+                    if (data.result) {
+                        data.result.forEach((r) => {
+                            if (r.error) {
+                                console.log('error:', r.error[0]);
+                            }
+                        });
+                    }
+                }
+                catch (e) {
+                    hasErrors = true;
+                    console.log('error: ' + e);
+                }
             }
-            response[city_list[cityCodes[i]]] = cityData;
         }
         catch (e) {
-            console.log('failed to fecth ' + city_list[cityCodes[i]] + 'error ', e);
+            console.log('failed to fetch ' + city_list[cityCodes[i]] + ' error ', e);
         }
     }
     if (hasErrors) {
-        res.status(500).send({ msg: 'failure', data: response });
+        res.status(500).send({ msg: 'failure' });
     }
     else {
-        res.status(200).send(response);
+        res.status(200).send({ msg: "success" });
     }
 }));
 exports.default = router;

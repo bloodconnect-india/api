@@ -312,7 +312,7 @@ router.get('/fetch-eraktkosh',zohoMiddleware, async (req, res) => {
     try {
       const cityData: any[] = [];
       const { data } = await Axios.get(cityUrl);
-      data.data.forEach((e: any) => {
+      data.data?.forEach((e: any) => {
         const currEntry = processRaktKoshEntry(e, city_list[cityCodes[i]]);
         cityData.push(currEntry);
       });
