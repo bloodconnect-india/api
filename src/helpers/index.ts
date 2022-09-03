@@ -28,7 +28,7 @@ export const processRaktKoshEntry = (entry: any, cityName: string) => {
   const Blood_Bank_Name = details[0];
   const Address = details[1];
   const Address1 = Address.split(',');
-  const District = Address1[Address1.length-1].trim();
+  const District = Address1[Address1.length-2].trim();
   var Phone = '-', Email = '-';
   if (details[2] != null) {
     var s1 = details[2].replace('Phone: ', '?');
