@@ -30,6 +30,8 @@ exports.processRaktKoshEntry = (entry, cityName) => {
     const details = entry[1].split('<br/>');
     const Blood_Bank_Name = details[0];
     const Address = details[1];
+    const Address1 = Address.split(',');
+    const District = Address1[Address1.length - 1].trim();
     var Phone = '-', Email = '-';
     if (details[2] != null) {
         var s1 = details[2].replace('Phone: ', '?');
@@ -93,7 +95,8 @@ exports.processRaktKoshEntry = (entry, cityName) => {
         Date_field: tod,
         Last_Updated_Date: date_updated,
         Last_Updated_Time: time_updated,
-        Status_Live: live
+        Status_Live: live,
+        District: District
     };
 };
 const getPhoneNumber = (phone) => {
