@@ -100,6 +100,7 @@ router.post("/donor", zohoMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({ msg: "success" });
   } catch (e) {
     res.status(400).send({ msg: "failure" });
