@@ -17,7 +17,9 @@ const RedisStore = connectRedis(session);
 const devDeployment = process.env.DEPLOYMENT === 'local';
 const redis = devDeployment ? new MockRedis('') : new Redis(process.env.REDIS_URL);
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://www.bloodconnect.org'
+}));
 app.use(bodyParser.json());
 app.use(
   !devDeployment
