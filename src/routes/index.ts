@@ -34,7 +34,7 @@ router.post('/helpline', zohoMiddleware, cityMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
-
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({ msg: 'success' });
   } catch (e) {
     // send mail
@@ -65,6 +65,7 @@ router.post('/add-donor', zohoMiddleware, cityMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({ msg: 'success' });
   } catch (e) {
     res.status(400).send({ msg: 'failure' });
@@ -102,6 +103,7 @@ router.post('/recruitment', zohoMiddleware, async (req, res) => {
       },
     });
     if (data.code && data.code !== 3000) res.status(500).send({ msg: 'failure', err: 'Error with zoho request' });
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({ msg: 'success' });
   } catch (e) {
     console.log(e);
@@ -132,6 +134,7 @@ router.post('/camp-request', zohoMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({ msg: 'success' });
   } catch (e) {
     res.status(400).send({ msg: 'failure' });
@@ -152,6 +155,7 @@ router.post('/awareness-request', zohoMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({ msg: 'success' });
   } catch (e) {
     res.status(400).send({ msg: 'failure' });
@@ -170,6 +174,7 @@ router.post('/contact', zohoMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({ msg: 'success' });
   } catch (e) {
     console.log('error', e);
@@ -190,6 +195,7 @@ router.post('/blood-warrior', zohoMiddleware, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
       },
     });
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     console.log(data);
     res.status(200).send({ msg: 'success' });
   } catch (e) {
