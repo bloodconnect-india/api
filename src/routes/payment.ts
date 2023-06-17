@@ -18,6 +18,7 @@ router.post("/create", async (req, res) => {
       currency: req.body.currency,
       payment_capture: 1,
     });
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({msg: "success", data});
   } catch (e) {
     res.status(400).send({msg: "failure"});
@@ -66,7 +67,7 @@ router.post("/verify", zohoMiddleware, async (req, res) => {
     } catch (e) {
       console.log(e);
     }
-
+    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
     res.status(200).send({msg: "success"});
   }
 });
