@@ -12,28 +12,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const axios_1 = __importDefault(require("axios"));
-const express_1 = __importDefault(require("express"));
-const zoho_1 = require("../helpers/zoho");
-const router = express_1.default.Router();
-router.post("/camp", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let reqData = {
-        data: req.body,
-    };
+exports.sendMail = void 0;
+const nodemailer_1 = __importDefault(require("nodemailer"));
+const transporter = nodemailer_1.default.createTransport({
+    host: "smtp.dreamhost.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: "no-reply@bloodconnect.org",
+        pass: process.env.EMAIL_PASSWORD,
+    },
+});
+const sendMail = (to, subject, message) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield (0, axios_1.default)({
-            method: "POST",
-            url: process.env.BASE_URL + "Camp_Request_Bot",
-            data: reqData,
-            headers: {
-                Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
-            },
+        const info = yield transporter.sendMail({
+            from: '"BloodConnect No-reply" <no-reply@bloodconnect.org>',
+            to,
+            subject,
+            html: message,
         });
-        res.status(200).send({ msg: "success" });
+        console.log(info);
+        return true;
     }
     catch (e) {
-        res.status(400).send({ msg: "failure" });
+        console.log(e);
+        return false;
     }
-}));
-exports.default = router;
-//# sourceMappingURL=bot.js.map
+});
+exports.sendMail = sendMail;
+//# sourceMappingURL=email.js.map

@@ -4,6 +4,7 @@ import { zohoMiddleware } from "../helpers/zoho";
 
 const router = express.Router();
 
+// TODO: no bots
 router.post("/camp", zohoMiddleware, async (req, res) => {
   let reqData = {
     data: req.body,
@@ -14,7 +15,7 @@ router.post("/camp", zohoMiddleware, async (req, res) => {
       url: process.env.BASE_URL! + "Camp_Request_Bot",
       data: reqData,
       headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+        Authorization: `Zoho-oauthtoken ${(req.session as any).zoho}`,
       },
     });
     res.status(200).send({ msg: "success" });

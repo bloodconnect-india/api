@@ -14,11 +14,11 @@ export const zohoMiddleware = async (
   next: NextFunction
 ) => {
   console.log("heree");
-  if (req.session?.zoho) next();
+  if ((req.session as any)?.zoho) next();
   else {
     let { data } = await getToken();
     console.log(data);
-    req.session!.zoho = data.access_token;
+    (req.session as any).zoho = data.access_token;
     next();
   }
 };
@@ -28,7 +28,7 @@ export const cityMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.session?.zoho) res.status(404).send({ msg: "failure" });
+  if (!(req.session as any)?.zoho) res.status(404).send({ msg: "failure" });
 
   req.body.City_Region = req.body.City_Region
     ? req.body.City_Region
@@ -46,7 +46,7 @@ export const cityMiddleware = async (
       url: process.env.BASE_URL! + "City_Vlookup",
       data: reqData,
       headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+        Authorization: `Zoho-oauthtoken ${(req.session as any).zoho}`,
       },
     });
 
@@ -60,7 +60,7 @@ export const cityMiddleware = async (
           req.body.City_Region +
           '")',
         headers: {
-          Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+          Authorization: `Zoho-oauthtoken ${(req.session as any).zoho}`,
         },
       });
       res.locals.cityID = data1.data[0].ID;

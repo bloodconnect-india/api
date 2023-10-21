@@ -14,22 +14,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cityMiddleware = exports.zohoMiddleware = exports.getToken = void 0;
 const axios_1 = __importDefault(require("axios"));
-exports.getToken = () => {
+const getToken = () => {
     return axios_1.default.post(process.env.REFRESH_URL);
 };
-exports.zohoMiddleware = (req, _, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getToken = getToken;
+const zohoMiddleware = (req, _, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     console.log("heree");
     if ((_a = req.session) === null || _a === void 0 ? void 0 : _a.zoho)
         next();
     else {
-        let { data } = yield exports.getToken();
+        let { data } = yield (0, exports.getToken)();
         console.log(data);
         req.session.zoho = data.access_token;
         next();
     }
 });
-exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.zohoMiddleware = zohoMiddleware;
+const cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     if (!((_b = req.session) === null || _b === void 0 ? void 0 : _b.zoho))
         res.status(404).send({ msg: "failure" });
@@ -42,7 +44,7 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         },
     };
     try {
-        let { data } = yield axios_1.default({
+        let { data } = yield (0, axios_1.default)({
             method: "POST",
             url: process.env.BASE_URL + "City_Vlookup",
             data: reqData,
@@ -51,7 +53,7 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             },
         });
         if (data.code === 3002) {
-            let { data: data1 } = yield axios_1.default({
+            let { data: data1 } = yield (0, axios_1.default)({
                 method: "GET",
                 url: process.env.BASE_GET_URL +
                     'Vlookup_Report?criteria=(City=="' +
@@ -73,4 +75,5 @@ exports.cityMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         res.status(501).send({ msg: "failure", desc: "Error in city middleware" });
     }
 });
+exports.cityMiddleware = cityMiddleware;
 //# sourceMappingURL=zoho.js.map

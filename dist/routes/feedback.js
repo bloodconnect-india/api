@@ -25,7 +25,7 @@ router.post("/helpline", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, 
             Contact_Number: "+91" + req.body.phone,
             City: req.body.city,
             Helpline: req.body.ID,
-            DOR: helpers_1.changeToddmmyyyy(req.body.dor),
+            DOR: (0, helpers_1.changeToddmmyyyy)(req.body.dor),
             Experience: req.body.rate,
             Feedback: req.body.like,
             Contact_Time: req.body.firstCall,
@@ -37,7 +37,7 @@ router.post("/helpline", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, 
         }
     };
     try {
-        yield axios_1.default({
+        yield (0, axios_1.default)({
             method: "POST",
             url: process.env.BASE_URL + "Helpline_Feedback_Form",
             data: reqData,
@@ -45,6 +45,7 @@ router.post("/helpline", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, 
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
             },
         });
+        res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
         res.status(200).send({ msg: "success" });
     }
     catch (e) {
@@ -67,7 +68,7 @@ router.post("/camp", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void
         }
     };
     try {
-        yield axios_1.default({
+        yield (0, axios_1.default)({
             method: "POST",
             url: process.env.BASE_URL + "Camp_Feedback_Form",
             data: reqData,
@@ -75,6 +76,7 @@ router.post("/camp", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, void
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
             },
         });
+        res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
         res.status(200).send({ msg: "success" });
     }
     catch (e) {
@@ -100,7 +102,7 @@ router.post("/donor", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, voi
         },
     };
     try {
-        yield axios_1.default({
+        yield (0, axios_1.default)({
             method: "POST",
             url: process.env.BASE_URL + "Donor_Feedback_Form",
             data: reqData,
@@ -108,6 +110,7 @@ router.post("/donor", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0, voi
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
             },
         });
+        res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
         res.status(200).send({ msg: "success" });
     }
     catch (e) {
@@ -130,7 +133,7 @@ router.post("/awareness", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0,
         }
     };
     try {
-        yield axios_1.default({
+        yield (0, axios_1.default)({
             method: "POST",
             url: process.env.BASE_URL + "Awareness_Feedback_Form",
             data: reqData,
@@ -138,6 +141,7 @@ router.post("/awareness", zoho_1.zohoMiddleware, (req, res) => __awaiter(void 0,
                 Authorization: `Zoho-oauthtoken ${req.session.zoho}`,
             },
         });
+        res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
         res.status(200).send({ msg: "success" });
     }
     catch (e) {

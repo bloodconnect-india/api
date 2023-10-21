@@ -5,6 +5,7 @@ import { zohoMiddleware } from '../helpers/zoho';
 
 const router = express.Router()
 
+// TODO: remove this
 
 
 router.post("/helpline", zohoMiddleware, async (req, res) => {
@@ -32,7 +33,7 @@ router.post("/helpline", zohoMiddleware, async (req, res) => {
       url: process.env.BASE_URL! + "Helpline_Feedback_Form",
       data: reqData,
       headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+        Authorization: `Zoho-oauthtoken ${((req.session as any) as any).zoho}`,
       },
     });
     res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
@@ -64,7 +65,7 @@ router.post("/camp", zohoMiddleware, async (req, res) => {
       url: process.env.BASE_URL! + "Camp_Feedback_Form",
       data: reqData,
       headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+        Authorization: `Zoho-oauthtoken ${((req.session as any) as any).zoho}`,
       },
     });
     res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
@@ -99,7 +100,7 @@ router.post("/donor", zohoMiddleware, async (req, res) => {
       url: process.env.BASE_URL! + "Donor_Feedback_Form",
       data: reqData,
       headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+        Authorization: `Zoho-oauthtoken ${((req.session as any) as any).zoho}`,
       },
     });
     res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
@@ -133,7 +134,7 @@ router.post("/awareness", zohoMiddleware, async (req, res) => {
       url: process.env.BASE_URL! + "Awareness_Feedback_Form",
       data: reqData,
       headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+        Authorization: `Zoho-oauthtoken ${((req.session as any) as any).zoho}`,
       },
     });
     res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");

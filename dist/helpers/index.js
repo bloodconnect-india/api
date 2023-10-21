@@ -1,16 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.processRaktKoshEntry = exports.containsComman = exports.convertArrayToList = exports.changeToddmmyyyy = void 0;
-exports.changeToddmmyyyy = (date) => {
+const changeToddmmyyyy = (date) => {
     let newDate = '';
     const dateAr = date.split('-');
     newDate = dateAr[2] + '-' + dateAr[1] + '-' + dateAr[0];
     return newDate;
 };
-exports.convertArrayToList = (arr) => {
+exports.changeToddmmyyyy = changeToddmmyyyy;
+const convertArrayToList = (arr) => {
     let result = '';
     for (let i = 0; i < arr.length; i++) {
-        if (exports.containsComman(arr[i]))
+        if ((0, exports.containsComman)(arr[i]))
             arr[i] = `"${arr[i]}"`;
         if (i > 0)
             result = result + ',' + arr[i];
@@ -19,14 +20,16 @@ exports.convertArrayToList = (arr) => {
     }
     return result;
 };
-exports.containsComman = (s) => {
+exports.convertArrayToList = convertArrayToList;
+const containsComman = (s) => {
     for (let i = 0; i < s.length; i++) {
         if (s[i] === ',')
             return true;
     }
     return false;
 };
-exports.processRaktKoshEntry = (entry, cityName) => {
+exports.containsComman = containsComman;
+const processRaktKoshEntry = (entry, cityName) => {
     const details = entry[1].split('<br/>');
     const Blood_Bank_Name = details[0];
     const Address = details[1];
@@ -99,6 +102,7 @@ exports.processRaktKoshEntry = (entry, cityName) => {
         District: District
     };
 };
+exports.processRaktKoshEntry = processRaktKoshEntry;
 const getPhoneNumber = (phone) => {
     phone = phone.trim();
     if (phone.includes(',')) {

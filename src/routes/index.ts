@@ -1,15 +1,18 @@
 import Axios from 'axios';
 import express from 'express';
-import Redis from 'ioredis';
-import { MockRedis } from '../mocks/redis';
 import { CITYSTAT, MONTHSTAT } from '../../src/types';
 import { changeToddmmyyyy, processRaktKoshEntry } from '../helpers';
-import { cityMiddleware, zohoMiddleware } from '../helpers/zoho';
+import { Sheet } from '../helpers/sheets';
+import { zohoMiddleware } from '../helpers/zoho';
+import { MockRedis } from '../mocks/redis';
+import { sendMail } from '../helpers/email';
+import { getContactSubjectAndMsg } from '../templates/contact-us';
+import { getCampSubjectAndMsg, getCampSubjectAndMsgRequestor } from 'src/templates/camp';
+import { getJoinSubjectAndMsg } from 'src/templates/join-us';
+import { getAwarenessSubjectAndMsg, getAwarenessSubjectAndMsgRequestor } from 'src/templates/awareness';
 
-const devDeployment = process.env.DEPLOYMENT === 'local';
-
+const redis = new MockRedis('');
 const router = express.Router();
-const redis = devDeployment ? new MockRedis('') : new Redis(process.env.REDIS_URL);
 
 const ERAKTKOSH_URL_PREFIX = 'https://www.eraktkosh.in/BLDAHIMS/bloodbank/nearbyBB.cnt?hmode=GETNEARBYSTOCKDETAILS&stateCode=';
 const ERAKTKOSH_URL_SUFFIX = '&districtCode=-1&bloodGroup=all&bloodComponent=11&lang=0&_=1633202320971';
@@ -19,172 +22,186 @@ router.get('/', (_, res) => {
 });
 
 // helpline request
-router.post('/helpline', zohoMiddleware, cityMiddleware, async (req, res) => {
-  // if  we dont have the access token ( not really needed )
-  if (!req.session!.zoho) res.status(404).send({ msg: 'failure' });
-
-  // sending request to helpline form
-  try {
-    req.body.City_Region = req.res?.locals.cityID; // string  -> ID
-    await Axios({
-      method: 'POST',
-      url: process.env.BASE_URL! + 'Helpline',
-      data: { data: req.body },
-      headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
-      },
-    });
-    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
+router.post('/helpline', async (req, res) => {
+  const sheet = new Sheet(process.env.helpline_sheet || '');
+  const row = {
+    'Patient Name': req.body.patient_name,
+    'Your Name': req.body.name,
+    'Email': req.body.email,
+    'Phone': req.body.contact,
+    'Unit': req.body.units,
+    'Blood Group': req.body.bg,
+    'Requirement': req.body.requirement,
+    'City': req.body.city
+  };
+  console.log('adding row', row);
+  const ok = await sheet.addRow(row);
+  if (ok) {
     res.status(200).send({ msg: 'success' });
-  } catch (e) {
-    // send mail
-    res.status(500).send({ msg: 'failure' });
+  } else {
+    res.status(400).send({ msg: 'failure' });
   }
 });
 
 // register as donor request
-router.post('/add-donor', zohoMiddleware, cityMiddleware, async (req, res) => {
-  req.body.City_Donor = req.res?.locals.cityID; // string  -> ID
-  const reqData = {
-    data: {
-      Name: req.body.Name,
-      City_Donor: req.body.City_Donor,
-      Email: req.body.Email,
-      Phone_Number: '+91' + req.body.Phone_Number,
-      Blood_Group: req.body.Blood_Group,
-      Date_of_Birth: changeToddmmyyyy(req.body.Date_of_Birth),
-      Source: 'Website',
-    },
+router.post('/add-donor', async (req, res) => {
+  const sheet = new Sheet(process.env.donor_sheet || '');
+  const row = {
+    'Name': req.body.Name,
+    'Email': req.body.Email,
+    'Phone': '+91' + req.body.Phone_Number,
+    'DOB': changeToddmmyyyy(req.body.Date_of_Birth),
+    'BG': req.body.Blood_Group,
+    'City': req.body.City_Donor
   };
-  try {
-    await Axios({
-      method: 'POST',
-      url: process.env.BASE_URL! + 'Donor_DB',
-      data: reqData,
-      headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
-      },
-    });
-    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
+  console.log('adding row', row);
+  const ok = await sheet.addRow(row);
+  if (ok) {
     res.status(200).send({ msg: 'success' });
-  } catch (e) {
+  } else {
     res.status(400).send({ msg: 'failure' });
   }
 });
 
 // recruitment form
-router.post('/recruitment', zohoMiddleware, async (req, res) => {
-  // here city is not a vlookup !!!
-  // console.log(req.body.Why_BC);
-  const reqData = {
-    data: {
-      Name: req.body.Name,
-      City: req.body.City,
-      Email: req.body.Email,
-      Phone_Number: req.body.Phone_Number,
-      Additional: req.body.additional,
-      Prior_Experience_Volunteering: req.body.Prior_Experience_Volunteering,
-      Year_of_Graduation: req.body.Year_of_Graduation,
-      Organization: req.body.Organization,
-      Why_BC1: req.body.Why_BC,
-      Interested_In: req.body.Interested_In,
-      Personal_Contact: req.body.Personal_Contact,
-      How_BC: req.body.How_BC,
-      Status: 'On Going',
-    },
+router.post('/recruitment', async (req, res) => {
+  const sheet = new Sheet(process.env.recruitment_sheet || '');
+  const row = {
+    'Name': req.body.Name,
+    'City': req.body.City,
+    'Email': req.body.Email,
+    'Phone': req.body.Phone_Number,
+    'Prior Experience': req.body.Prior_Experience_Volunteering,
+    'Graduation Year': req.body.Year_of_graduation,
+    'Organization': req.body.Organization,
+    'Why BloodConnect': req.body.Why_BC,
+    'Interest': req.body.Interested_In,
+    'Contact in BC': req.body.Personal_Contact,
+    'How': req.body.How_BC,
+    'Education': req.body.Education_Details 														
   };
-  try {
-    const { data } = await Axios({
-      method: 'POST',
-      url: process.env.BASE_URL! + 'Recruitment_Form',
-      data: reqData,
-      headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
-      },
+  console.log('adding row', row);
+  const ok = await sheet.addRow(row);
+  if (ok) {
+    const data = getJoinSubjectAndMsg({
+      additional: '',
+      city: row.City,
+      contact: row.Phone,
+      education: row.Education,
+      email: row.Email,
+      experience: row['Prior Experience'],
+      how: row.How,
+      interest: row.Interest,
+      name: row.Name,
+      organization: row.Organization,
+      poc: row['Contact in BC'],
+      why: row['Why BloodConnect'],
+      yog: row['Graduation Year']
     });
-    if (data.code && data.code !== 3000) res.status(500).send({ msg: 'failure', err: 'Error with zoho request' });
-    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
+    await sendMail(data.to, data.subject, data.body);
     res.status(200).send({ msg: 'success' });
-  } catch (e) {
-    console.log(e);
+  } else {
     res.status(400).send({ msg: 'failure' });
   }
 });
 
 // camp request
-router.post('/camp-request', zohoMiddleware, async (req, res) => {
-  const reqData = {
-    data: {
-      Your_Name: req.body.Your_Name,
-      City_Name: req.body.City_Region,
-      Email: req.body.Email,
-      Phone_Number: req.body.Phone_Number,
-      Additional_Message: req.body.Additional_Message,
-      Number_of_Employee: req.body.Number_of_Employee,
-      Organization_Name: req.body.Organization_Name,
-      Status: 'Open',
-    },
+router.post('/camp-request', async (req, res) => {
+  const sheet = new Sheet(process.env.camp_awareness_sheet || '');
+  const row = {
+    'Type': 'Camp',
+    'Name': req.body.Your_Name,
+    'Email': req.body.Email,
+    'Phone': req.body.Phone_Number,
+    'City': req.body.City_Region,
+    'Organization Name': req.body.Organization_Name
   };
-  try {
-    await Axios({
-      method: 'POST',
-      url: process.env.BASE_URL! + 'Camp_Request_Website',
-      data: reqData,
-      headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
-      },
-    });
-    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
+  const ok = await sheet.addRow(row);
+  if (ok) {
+    const data = getCampSubjectAndMsg({
+      city: row.City,
+      contact: row.Phone,
+      email: row.Email,
+      name: row.Name,
+      organization: row['Organization Name']
+    })
+    await sendMail(data.to, data.subject, data.body);
+    const requestorData = getCampSubjectAndMsgRequestor({
+      city: row.City,
+      contact: row.Phone,
+      email: row.Email,
+      name: row.Name,
+      organization: row['Organization Name']
+    })
+    await sendMail(requestorData.to, requestorData.subject, requestorData.body);
     res.status(200).send({ msg: 'success' });
-  } catch (e) {
+  } else {
     res.status(400).send({ msg: 'failure' });
   }
 });
 
 // awareness request
-router.post('/awareness-request', zohoMiddleware, async (req, res) => {
-  const reqData = {
-    data: req.body,
+router.post('/awareness-request', async (req, res) => {
+  const sheet = new Sheet(process.env.camp_awareness_sheet || '');
+  const row = {
+    'Type': 'Awareness',
+    'Name': req.body.Your_Name,
+    'Email': req.body.Email,
+    'Phone': req.body.Phone_Number,
+    'City': req.body.City_Name,
+    'Organization Name': req.body.Organization_Name,
+    'Mode': req.body.Mode
   };
-  try {
-    await Axios({
-      method: 'POST',
-      url: process.env.BASE_URL! + 'Awareness_Request_Website',
-      data: reqData,
-      headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
-      },
+  const ok = await sheet.addRow(row);
+  if (ok) {
+    const data = getAwarenessSubjectAndMsg({
+      city: row.City,
+      contact: row.Phone,
+      email: row.Email,
+      name: row.Name,
+      organization: row['Organization Name'],
+      mode: row.Mode
     });
-    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
+    await sendMail(data.to, data.subject, data.body);
+    const requestorData = getAwarenessSubjectAndMsgRequestor({
+      city: row.City,
+      contact: row.Phone,
+      email: row.Email,
+      name: row.Name,
+      organization: row['Organization Name'],
+      mode: row.Mode
+    });
+    await sendMail(requestorData.to, requestorData.subject, requestorData.body);
     res.status(200).send({ msg: 'success' });
-  } catch (e) {
+  } else {
     res.status(400).send({ msg: 'failure' });
   }
 });
 
 // contact form
-router.post('/contact', zohoMiddleware, async (req, res) => {
-  if (!req.session!.zoho) res.status(500).send({ msg: 'failure' });
-  try {
-    await Axios({
-      method: 'POST',
-      url: process.env.BASE_URL! + 'Contact_Us_Website',
-      data: { data: req.body },
-      headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
-      },
-    });
-    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
+router.post('/contact', async (req, res) => {
+  const sheet = new Sheet(process.env.contact_sheet || '');
+  const row = {
+    'Name': req.body.Name,
+    'Email': req.body.Email,
+    'Message': req.body.Message,
+    'Phone': req.body.Phone_Number,
+    'City': req.body.City
+  };
+  const ok = await sheet.addRow(row);
+  if (ok) {
+    const data = getContactSubjectAndMsg({ name: row.Name, contact: row.Phone, email: row.Email, message: row.Message, city: row.City });
+    await sendMail(data.to, data.subject, data.body);
     res.status(200).send({ msg: 'success' });
-  } catch (e) {
-    console.log('error', e);
-    res.send(500).send({ msg: 'failure' });
+  } else {
+    res.status(400).send({ msg: 'failure' });
   }
 });
 
+// TODO: remove zoho
 // blood warrior
 router.post('/blood-warrior', zohoMiddleware, async (req, res) => {
-  if (!req.session!.zoho) res.status(500).send({ msg: 'failure' });
+  if (!((req.session as any) as any).zoho) res.status(500).send({ msg: 'failure' });
   console.log(req.body);
   try {
     const { data } = await Axios({
@@ -192,10 +209,10 @@ router.post('/blood-warrior', zohoMiddleware, async (req, res) => {
       url: process.env.BASE_URL! + 'Blood_Warriors',
       data: { data: req.body },
       headers: {
-        Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
-      },
+        Authorization: `Zoho-oauthtoken ${((req.session as any) as any).zoho}`
+      }
     });
-    res.header("Access-Control-Allow-Origin", "https://www.bloodconnect.org");
+    res.header('Access-Control-Allow-Origin', 'https://www.bloodconnect.org');
     console.log(data);
     res.status(200).send({ msg: 'success' });
   } catch (e) {
@@ -204,6 +221,7 @@ router.post('/blood-warrior', zohoMiddleware, async (req, res) => {
   }
 });
 
+// TODO: remove zoho
 router.get('/set-helpline-stat', async (req, res) => {
   // getting the request data
   const data = req.query;
@@ -217,7 +235,7 @@ router.get('/set-helpline-stat', async (req, res) => {
     open: parseInt(data.open as string, 10),
     closed: parseInt(data.closed as string, 10),
     total: parseInt(data.total as string, 10),
-    detail: {},
+    detail: {}
   };
 
   // if the data sent is not complete
@@ -233,7 +251,7 @@ router.get('/set-helpline-stat', async (req, res) => {
     const yearTemp = helplineData[i];
     const monthArray: MONTHSTAT[] = Array<MONTHSTAT>(12).fill({
       donations: 0,
-      helpline: 0,
+      helpline: 0
     });
     // adding to respective indexes
     for (let j = 1; j <= 12; j++) {
@@ -261,52 +279,54 @@ router.get('/set-helpline-stat', async (req, res) => {
   res.status(200).send({ msg: 'success' });
 });
 
+// TODO: remove zoho
 router.get('/get-helplines', async (_, res) => {
   const data = await redis.get('helplines');
   if (!data) res.status(500).send({ msg: 'some problem' });
   res.status(200).send({ data: JSON.parse(data!) });
 });
 
-router.get('/fetch-eraktkosh',zohoMiddleware, async (req, res) => {
+// TODO: remove zoho
+router.get('/fetch-eraktkosh', zohoMiddleware, async (req, res) => {
   console.log('e rakht-kosh');
   const city_list: Record<string, string> = {
-    "35": "Andaman and Nicobar Islands",
-    "28": "Andhra Pradesh",
-    "12": "Arunachal Pradesh",
-    "18": "Assam",
-    "10": "Bihar",
-    "94": "Chandigarh",
-    "22": "Chattisgarh",
-    "26": "Dadra and Nagar Haveli",
-    "25": "Daman and Diu",
-    "97": "Delhi",
-    "24": "Gujarat",
-    "30": "Goa",
-    "96": "Haryana",
-    "92": "Himachal",
-    "91": "Jammu and Kashmir",
-    "20": "Jharkhand",
-    "29": "Karnataka",
-    "32": "Kerala",
-    "37": "Ladakh",
-    "31": "Lakshdweep",
-    "23": "Madhya Pradesh",
-    "27": "Maharashtra",
-    "14": "Manipur",
-    "17": "Meghalaya",
-    "15": "Mizoram",
-    "13": "Nagaland",
-    "21": "Odisha",
-    "34": "Puducherry",
-    "93": "Punjab",
-    "98": "Rajasthan",
-    "11": "Sikkim",
-    "33": "Tamil Nadu",
-    "36": "Telangana",
-    "16": "Tripura",
-    "95": "Uttarakhand",
-    "99": "Uttar Pradesh",
-    "19": "West Bengal",
+    '35': 'Andaman and Nicobar Islands',
+    '28': 'Andhra Pradesh',
+    '12': 'Arunachal Pradesh',
+    '18': 'Assam',
+    '10': 'Bihar',
+    '94': 'Chandigarh',
+    '22': 'Chattisgarh',
+    '26': 'Dadra and Nagar Haveli',
+    '25': 'Daman and Diu',
+    '97': 'Delhi',
+    '24': 'Gujarat',
+    '30': 'Goa',
+    '96': 'Haryana',
+    '92': 'Himachal',
+    '91': 'Jammu and Kashmir',
+    '20': 'Jharkhand',
+    '29': 'Karnataka',
+    '32': 'Kerala',
+    '37': 'Ladakh',
+    '31': 'Lakshdweep',
+    '23': 'Madhya Pradesh',
+    '27': 'Maharashtra',
+    '14': 'Manipur',
+    '17': 'Meghalaya',
+    '15': 'Mizoram',
+    '13': 'Nagaland',
+    '21': 'Odisha',
+    '34': 'Puducherry',
+    '93': 'Punjab',
+    '98': 'Rajasthan',
+    '11': 'Sikkim',
+    '33': 'Tamil Nadu',
+    '36': 'Telangana',
+    '16': 'Tripura',
+    '95': 'Uttarakhand',
+    '99': 'Uttar Pradesh',
+    '19': 'West Bengal'
   };
   let hasErrors = false;
   const cityCodes = Object.keys(city_list);
@@ -322,21 +342,21 @@ router.get('/fetch-eraktkosh',zohoMiddleware, async (req, res) => {
         const currEntry = processRaktKoshEntry(e, city_list[cityCodes[i]]);
         cityData.push(currEntry);
       });
-      if(cityData.length>199){
+      if (cityData.length > 199) {
         let start_idx = 0;
         let end_idx = 199;
-        while(count<cityData.length){
+        while (count < cityData.length) {
           try {
             const { data } = await Axios({
               method: 'POST',
               url: process.env.BASE_URL! + 'eRaktKosh_Data',
-              data: { data: cityData.slice(start_idx,end_idx)},
+              data: { data: cityData.slice(start_idx, end_idx) },
               headers: {
-                Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+                Authorization: `Zoho-oauthtoken ${((req.session as any) as any).zoho}`
               },
               validateStatus: function (_: number) {
                 return true;
-              },
+              }
             });
             //console.log('status: ', status);
             if (data.result) {
@@ -351,22 +371,23 @@ router.get('/fetch-eraktkosh',zohoMiddleware, async (req, res) => {
             console.log('error: ' + e);
           }
           start_idx += 199;
-          if(end_idx + 199 > cityData.length){end_idx=cityData.length}
-          else end_idx +=199;
-          count+= 199; 
+          if (end_idx + 199 > cityData.length) {
+            end_idx = cityData.length;
+          } else end_idx += 199;
+          count += 199;
         }
-      }else{
+      } else {
         try {
           const { data } = await Axios({
             method: 'POST',
             url: process.env.BASE_URL! + 'eRaktKosh_Data',
             data: { data: cityData },
             headers: {
-              Authorization: `Zoho-oauthtoken ${req.session!.zoho}`,
+              Authorization: `Zoho-oauthtoken ${((req.session as any) as any).zoho}`
             },
             validateStatus: function (_: number) {
               return true;
-            },
+            }
           });
           // console.log("entry added for " +city_list[cityCodes[i]] +" : "+ count );
           // console.log('status: ', status);
@@ -387,9 +408,9 @@ router.get('/fetch-eraktkosh',zohoMiddleware, async (req, res) => {
     }
   }
   if (hasErrors) {
-    res.status(500).send({ msg: 'failure'});
+    res.status(500).send({ msg: 'failure' });
   } else {
-    res.status(200).send({ msg: "success" });
+    res.status(200).send({ msg: 'success' });
   }
 });
 
