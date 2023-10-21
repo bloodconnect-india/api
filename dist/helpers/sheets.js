@@ -25,7 +25,7 @@ class Sheet {
     }
     addRow(row) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(process.env.client_email);
+            console.log(row);
             try {
                 yield this.doc.loadInfo();
                 let sheet = this.doc.sheetsByIndex[0];
