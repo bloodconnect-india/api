@@ -20,8 +20,8 @@ app.use('/', index_1.default);
 app.use('/feedback', feedback_1.default);
 app.use('/payment', payment_1.default);
 app.use('/bot', bot_1.default);
-app.listen(process.env.port, () => {
-    console.log('server started at port : ', process.env.port);
+app.listen(process.env.PORT, () => {
+    console.log('server started at port : ', process.env.PORT);
 });
 exports.default = app;
 //# sourceMappingURL=index.js.map
