@@ -19,7 +19,7 @@ app.use('/', root);
 app.use('/feedback', feedback);
 app.use('/payment', payment);
 app.use('/bot', bot);
-app.listen(process.env.port, () => {
-  console.log('server started at port : ', process.env.port);
+app.listen(process.env.PORT, () => {
+  console.log('server started at port : ', process.env.PORT);
 });
 export default app;
