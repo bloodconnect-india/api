@@ -7,9 +7,9 @@ import { zohoMiddleware } from '../helpers/zoho';
 import { MockRedis } from '../mocks/redis';
 import { sendMail } from '../helpers/email';
 import { getContactSubjectAndMsg } from '../templates/contact-us';
-import { getCampSubjectAndMsg, getCampSubjectAndMsgRequestor } from 'src/templates/camp';
-import { getJoinSubjectAndMsg } from 'src/templates/join-us';
-import { getAwarenessSubjectAndMsg, getAwarenessSubjectAndMsgRequestor } from 'src/templates/awareness';
+import { getCampSubjectAndMsg, getCampSubjectAndMsgRequestor } from '../templates/camp';
+import { getJoinSubjectAndMsg } from '../templates/join-us';
+import { getAwarenessSubjectAndMsg, getAwarenessSubjectAndMsgRequestor } from '../templates/awareness';
 
 const redis = new MockRedis('');
 const router = express.Router();
