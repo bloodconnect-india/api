@@ -17,7 +17,7 @@ export class Sheet {
   }
 
   async addRow(row: any): Promise<boolean> {
-    console.log(process.env.client_email);
+    console.log(row);
     try {
       await this.doc.loadInfo();
       let sheet = this.doc.sheetsByIndex[0];
