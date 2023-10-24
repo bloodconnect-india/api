@@ -95,7 +95,7 @@ BloodConnect Team
 </div>
   `;
     return {
-        to: 'anishydv2000@gmail.com',
+        to: 'bloodconnect-heads-india@googlegroups.com',
         subject: 'New Awareness Request : ' + data.city,
         body: htmlBody
     };
