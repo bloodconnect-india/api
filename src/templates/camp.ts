@@ -63,7 +63,7 @@ export const getCampSubjectAndMsg = (data: contact) => {
   `;
 
   return {
-    to: 'camps@bloodconnect.org',
+    to: 'camp@bloodconnect.org',
     subject: 'Organize Blood Donation Camp : ' + data.city,
     body: htmlBody
   };
